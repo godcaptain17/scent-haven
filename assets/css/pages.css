@@ -849,3 +849,32 @@
   padding-bottom: 0.5rem;
   border-bottom: 1px solid rgba(201,168,76,0.1);
 }
+
+/* ═══════════════ READABILITY FIXES ═══════════════ */
+
+/* Fix 1: Hero subtitle */
+.hero-subtitle {
+  color: var(--cream) !important;
+  opacity: 0.75;
+  font-size: 0.9rem !important;
+}
+
+/* Fix 2: Product card description */
+.product-card-desc {
+  color: rgba(245, 239, 224, 0.7) !important;
+  font-size: 0.78rem;
+}
+
+/* Fix 3: Cart brand name */
+.cart-item-brand {
+  font-size: 0.68rem !important;
+  color: var(--gold) !important;
+  opacity: 1 !important;
+  margin-bottom: 0.15rem;
+}
+
+/* Fix 4: Cart size text */
+.cart-item-size {
+  font-size: 0.78rem !important;
+  color: rgba(245, 239, 224, 0.65) !important;
+}
