@@ -546,6 +546,7 @@ ul, ol { list-style: none; }
     color: var(--gold);
   }
   .nav-cart-btn span { display: none; }
+.nav-cart-btn div { display: block !important; font-size: 1.3rem; }
   .nav-cart-count {
     display: flex !important;
     background: var(--rose);
