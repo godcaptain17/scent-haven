@@ -4,142 +4,485 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <title>Login — Scent Haven</title>
-  <link rel="stylesheet" href="/assets/css/core.css">
-  <link rel="stylesheet" href="/assets/css/pages.css">
+  <title>Admin Dashboard — Scent Haven</title>
+  <link rel="stylesheet" href="../assets/css/core.css">
+  <link rel="stylesheet" href="../assets/css/pages.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/assets/js/supabase.js"></script>
-  <script src="/assets/js/db.js"></script>
-  <script src="/assets/js/ui.js"></script>
+  <script src="../assets/js/supabase.js"></script>
+  <script src="../assets/js/db.js"></script>
+  <script src="../assets/js/ui.js"></script>
 </head>
 <body>
-  <canvas id="particles-canvas"></canvas>
+  <div class="loading-overlay" id="loading-screen">
+    <div class="spinner" style="width:36px;height:36px;border-width:2.5px;"></div>
+    <div class="loading-logo"><img src="https://vudxovvqpjdhlemugtqh.supabase.co/storage/v1/object/public/assets/logo.png" alt="Scent Haven" style="height:60px;width:auto;"></div>
+  </div>
 
-  <div class="auth-page">
-    <div class="auth-card">
-      <div class="auth-logo"><a href="/index.html"><img src="https://vudxovvqpjdhlemugtqh.supabase.co/storage/v1/object/public/assets/logo.png" alt="Scent Haven" style="height:56px;width:auto;display:block;margin:0 auto 0.5rem;"></a></div>
-      <h1 class="auth-title">Welcome Back</h1>
-      <p class="auth-subtitle">Sign in to your account</p>
-
-      <!-- Login Form -->
-      <div id="login-form">
-        <div class="form-group">
-          <label class="form-label">Email Address</label>
-          <input type="email" class="form-input" id="login-email" placeholder="your@email.com" autocomplete="email">
-          <div class="form-error" id="email-error"></div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Password</label>
-          <input type="password" class="form-input" id="login-password" placeholder="Enter your password" autocomplete="current-password">
-          <div class="form-error" id="password-error"></div>
-        </div>
-        <div style="text-align:right;margin-bottom:1.2rem;">
-          <a href="#" onclick="showForgotPassword()" style="font-size:0.72rem;color:var(--gold);">Forgot password?</a>
-        </div>
-        <button class="btn btn-primary btn-block" id="login-btn" onclick="handleLogin()">Sign In</button>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar-logo"><img src="https://vudxovvqpjdhlemugtqh.supabase.co/storage/v1/object/public/assets/logo.png" alt="Scent Haven" style="height:36px;width:auto;filter:brightness(1.2);"></div>
+      <div class="admin-sidebar-label">Management</div>
+      <div class="admin-nav-item active" onclick="showAdminSection('overview', this)">📊 Overview</div>
+      <div class="admin-nav-item" onclick="showAdminSection('products', this)">🧴 Products</div>
+      <div class="admin-nav-item" onclick="showAdminSection('orders', this)">📦 Orders</div>
+      <div class="admin-sidebar-label">System</div>
+      <div class="admin-nav-item" onclick="showAdminSection('add-product', this)">➕ Add Product</div>
+      <div class="admin-nav-item" onclick="adminLogout()" style="margin-top:auto;">↗ Logout</div>
+      <div style="padding:1.5rem;margin-top:auto;">
+        <a href="/index.html" style="font-size:0.68rem;color:var(--muted);">← Back to site</a>
       </div>
+    </aside>
 
-      <!-- Forgot Password Form -->
-      <div id="forgot-form" style="display:none;">
-        <div class="form-group">
-          <label class="form-label">Email Address</label>
-          <input type="email" class="form-input" id="forgot-email" placeholder="your@email.com">
-        </div>
-        <button class="btn btn-primary btn-block" onclick="handleForgotPassword()">Send Reset Link</button>
-        <div style="text-align:center;margin-top:1rem;">
-          <a href="#" onclick="showLoginForm()" style="font-size:0.72rem;color:var(--gold);">← Back to login</a>
+    <!-- Main Content -->
+    <main class="admin-main">
+      <!-- Mobile header (shown on small screens) -->
+      <div style="display:none;margin-bottom:1.5rem;" id="mobile-admin-nav">
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <button class="filter-btn active" onclick="showAdminSection('overview', this)">Overview</button>
+          <button class="filter-btn" onclick="showAdminSection('products', this)">Products</button>
+          <button class="filter-btn" onclick="showAdminSection('orders', this)">Orders</button>
+          <button class="filter-btn" onclick="showAdminSection('add-product', this)">Add Product</button>
         </div>
       </div>
 
-      <div class="auth-footer">
-        Don't have an account? <a href="/register.html">Create one</a>
+      <!-- ═══ OVERVIEW SECTION ═══ -->
+      <div class="admin-section active" id="section-overview">
+        <div class="admin-header">
+          <h1 class="admin-title">Dashboard</h1>
+          <span class="body-text" id="admin-greeting"></span>
+        </div>
+        <div class="admin-stats-grid" id="stats-grid">
+          <div class="admin-stat-card">
+            <div class="admin-stat-label">Total Products</div>
+            <div class="admin-stat-value" id="stat-products">0</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-label">Total Orders</div>
+            <div class="admin-stat-value" id="stat-orders">0</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-label">Revenue</div>
+            <div class="admin-stat-value" id="stat-revenue">₦0</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-label">Low Stock</div>
+            <div class="admin-stat-value" id="stat-lowstock">0</div>
+            <div class="admin-stat-sub">Items with &lt; 5 units</div>
+          </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <h2 style="font-family:var(--font-display);font-size:1.3rem;color:var(--cream);margin-bottom:1rem;">Recent Orders</h2>
+        <div class="admin-table-wrap">
+          <table class="admin-table" id="recent-orders-table">
+            <thead>
+              <tr><th>Order ID</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th></tr>
+            </thead>
+            <tbody id="recent-orders-body">
+              <tr><td colspan="5" style="text-align:center;color:var(--muted);">No orders yet</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+
+      <!-- ═══ PRODUCTS SECTION ═══ -->
+      <div class="admin-section" id="section-products">
+        <div class="admin-header">
+          <h1 class="admin-title">Products</h1>
+          <button class="btn btn-primary btn-sm" onclick="showAdminSection('add-product')">+ Add Product</button>
+        </div>
+
+        <!-- Search -->
+        <div class="shop-search" style="max-width:400px;margin-bottom:1.5rem;">
+          <input type="text" id="admin-product-search" placeholder="Search products..." oninput="filterAdminProducts(this.value)">
+        </div>
+
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr><th>Product</th><th>Brand</th><th>Price</th><th>Stock</th><th>Category</th><th>Featured</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="admin-products-body">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ═══ ADD/EDIT PRODUCT SECTION ═══ -->
+      <div class="admin-section" id="section-add-product">
+        <div class="admin-header">
+          <h1 class="admin-title" id="product-form-title">Add New Product</h1>
+        </div>
+        <div class="admin-form">
+          <input type="hidden" id="edit-product-id" value="">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Product Name *</label>
+              <input type="text" class="form-input" id="p-name" placeholder="e.g. Noir Absolu">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Brand</label>
+              <input type="text" class="form-input" id="p-brand" placeholder="e.g. Tom Ford">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Price (₦) *</label>
+              <input type="number" class="form-input" id="p-price" placeholder="185000">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Stock Quantity</label>
+              <input type="number" class="form-input" id="p-stock" placeholder="10" value="10">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Size</label>
+              <input type="text" class="form-input" id="p-size" placeholder="e.g. 100ml EDP">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Category</label>
+              <select class="form-select" id="p-category">
+                <option value="Oud">Oud</option>
+                <option value="Floral">Floral</option>
+                <option value="Fresh">Fresh</option>
+                <option value="Oriental">Oriental</option>
+                <option value="Spicy">Spicy</option>
+                <option value="Gourmand">Gourmand</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea class="form-textarea" id="p-desc" placeholder="Describe the fragrance..."></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Fragrance Notes (comma separated)</label>
+              <input type="text" class="form-input" id="p-notes" placeholder="Oud, Rose, Amber, Musk">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Badge</label>
+              <input type="text" class="form-input" id="p-badge" placeholder="e.g. Bestseller, New, Limited">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Emoji (for placeholder)</label>
+              <input type="text" class="form-input" id="p-emoji" placeholder="🌹" value="🧴">
+            </div>
+            <div class="form-group" style="display:flex;align-items:flex-end;">
+              <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-size:0.76rem;color:var(--muted);">
+                <input type="checkbox" id="p-featured" style="accent-color:var(--gold);"> Featured Product
+              </label>
+            </div>
+          </div>
+
+          <!-- Image Upload -->
+          <div class="form-group">
+            <label class="form-label">Product Image</label>
+            <div class="upload-zone" onclick="document.getElementById('p-image-file').click()">
+              <div class="upload-zone-text" id="upload-text">Click to upload an image</div>
+              <img class="upload-preview" id="upload-preview">
+              <input type="file" id="p-image-file" accept="image/*" style="display:none;" onchange="handleImageUpload(this)">
+            </div>
+          </div>
+
+          <div style="display:flex;gap:1rem;">
+            <button class="btn btn-primary" id="save-product-btn" onclick="saveProduct()">Add Product</button>
+            <button class="btn btn-ghost" onclick="resetProductForm()">Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ ORDERS SECTION ═══ -->
+      <div class="admin-section" id="section-orders">
+        <div class="admin-header">
+          <h1 class="admin-title">Orders</h1>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="admin-orders-body">
+              <tr><td colspan="7" style="text-align:center;color:var(--muted);">No orders yet</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Enter key support
-      document.getElementById('login-password').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleLogin();
-      });
+    let pendingImageUrl = '';
+    let allProducts = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Admin protection
+      const isAdmin = await Auth.isAdmin();
+      if (!isAdmin) {
+        window.location.href = '/admin/login.html';
+        return;
+      }
+
+      const user = await Auth.getUser();
+      document.getElementById('admin-greeting').textContent = `Welcome, ${(user && user.full_name) || 'Admin'}`;
+
+      // Show mobile nav on small screens
+      if (window.innerWidth <= 1024) {
+        document.getElementById('mobile-admin-nav').style.display = 'block';
+      }
+
+      await loadDashboard();
+      hideLoadingScreen();
     });
 
-    function showForgotPassword() {
-      document.getElementById('login-form').style.display = 'none';
-      document.getElementById('forgot-form').style.display = 'block';
+    // ─── NAVIGATION ──────────────────────────────────────────
+    function showAdminSection(section, clickedEl) {
+      document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+      document.getElementById(`section-${section}`).classList.add('active');
+      document.querySelectorAll('.admin-nav-item').forEach(i => i.classList.remove('active'));
+      if (clickedEl) clickedEl.classList.add('active');
+
+      // Refresh data
+      if (section === 'products') loadAdminProducts();
+      if (section === 'orders') loadAdminOrders();
+      if (section === 'overview') loadDashboard();
     }
 
-    function showLoginForm() {
-      document.getElementById('login-form').style.display = 'block';
-      document.getElementById('forgot-form').style.display = 'none';
+    // ─── DASHBOARD ───────────────────────────────────────────
+    async function loadDashboard() {
+      const { data: products } = await Products.getAll();
+      const { data: orders } = await Orders.getAll();
+      allProducts = products || [];
+
+      document.getElementById('stat-products').textContent = allProducts.length;
+      document.getElementById('stat-orders').textContent = (orders || []).length;
+
+      const revenue = (orders || []).reduce((sum, o) => sum + (o.total || 0), 0);
+      document.getElementById('stat-revenue').textContent = formatPrice(revenue);
+
+      const lowStock = allProducts.filter(p => p.stock < 5).length;
+      document.getElementById('stat-lowstock').textContent = lowStock;
+
+      // Recent orders
+      const recentOrders = (orders || []).slice(0, 5);
+      const tbody = document.getElementById('recent-orders-body');
+      if (recentOrders.length) {
+        tbody.innerHTML = recentOrders.map(o => `
+          <tr>
+            <td style="font-family:var(--font-display);color:var(--cream);">${o.id}</td>
+            <td>${o.customer_name || 'N/A'}</td>
+            <td style="color:var(--gold);">${formatPrice(o.total || 0)}</td>
+            <td><span class="badge badge-${statusBadge(o.status)}">${o.status || 'pending'}</span></td>
+            <td>${new Date(o.created_at).toLocaleDateString()}</td>
+          </tr>
+        `).join('');
+      }
     }
 
-    async function handleLogin() {
-      const email = document.getElementById('login-email').value.trim();
-      const password = document.getElementById('login-password').value;
+    function statusBadge(status) {
+      const map = { pending: 'warning', confirmed: 'outline', shipped: 'outline', delivered: 'success', cancelled: 'error' };
+      return map[status] || 'outline';
+    }
 
-      // Validate
-      let valid = true;
-      if (!email) {
-        showFieldError('email-error', 'Email is required');
-        valid = false;
+    // ─── PRODUCTS ────────────────────────────────────────────
+    async function loadAdminProducts() {
+      const { data: products } = await Products.getAll();
+      allProducts = products || [];
+      renderAdminProducts(allProducts);
+    }
+
+    function renderAdminProducts(products) {
+      const tbody = document.getElementById('admin-products-body');
+      if (!products.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);">No products</td></tr>';
+        return;
       }
-      if (!password) {
-        showFieldError('password-error', 'Password is required');
-        valid = false;
+      tbody.innerHTML = products.map(p => `
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:0.6rem;">
+              <span style="font-size:1.4rem;">${p.emoji || '🧴'}</span>
+              <span style="color:var(--cream);">${p.name}</span>
+            </div>
+          </td>
+          <td>${p.brand || '-'}</td>
+          <td style="color:var(--gold);">${formatPrice(p.price)}</td>
+          <td><span class="${p.stock < 5 ? 'text-gold' : ''}">${p.stock || 0}</span></td>
+          <td><span class="badge badge-outline">${p.category || '-'}</span></td>
+          <td>${p.featured ? '⭐' : '-'}</td>
+          <td>
+            <div style="display:flex;gap:0.4rem;">
+              <button class="btn btn-ghost btn-sm" onclick="editProduct(${p.id})">Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function filterAdminProducts(query) {
+      if (!query) { renderAdminProducts(allProducts); return; }
+      const q = query.toLowerCase();
+      const filtered = allProducts.filter(p =>
+        p.name.toLowerCase().includes(q) ||
+        (p.brand || '').toLowerCase().includes(q) ||
+        (p.category || '').toLowerCase().includes(q)
+      );
+      renderAdminProducts(filtered);
+    }
+
+    // ─── ADD / EDIT PRODUCT ──────────────────────────────────
+    function handleImageUpload(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        pendingImageUrl = e.target.result;
+        const preview = document.getElementById('upload-preview');
+        preview.src = pendingImageUrl;
+        preview.style.display = 'block';
+        document.getElementById('upload-text').textContent = '✓ Image ready';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function saveProduct() {
+      const name = document.getElementById('p-name').value.trim();
+      const price = parseInt(document.getElementById('p-price').value);
+
+      if (!name) { showToast('Product name is required', 'error'); return; }
+      if (!price || price < 1) { showToast('Valid price is required', 'error'); return; }
+
+      const productData = {
+        name,
+        brand: document.getElementById('p-brand').value.trim(),
+        price,
+        stock: parseInt(document.getElementById('p-stock').value) || 0,
+        size: document.getElementById('p-size').value.trim(),
+        category: document.getElementById('p-category').value,
+        description: document.getElementById('p-desc').value.trim(),
+        notes: document.getElementById('p-notes').value.split(',').map(n => n.trim()).filter(Boolean),
+        badge: document.getElementById('p-badge').value.trim(),
+        emoji: document.getElementById('p-emoji').value.trim() || '🧴',
+        featured: document.getElementById('p-featured').checked,
+        image_url: pendingImageUrl
+      };
+
+      const editId = document.getElementById('edit-product-id').value;
+
+      if (editId) {
+        const { error } = await Products.update(parseInt(editId), productData);
+        if (error) { showToast('Update failed: ' + error.message, 'error'); return; }
+        showToast('Product updated!', 'success');
+      } else {
+        const { error } = await Products.create(productData);
+        if (error) { showToast('Failed to add product: ' + error.message, 'error'); return; }
+        showToast('Product added!', 'success');
       }
-      if (!valid) return;
 
-      const btn = document.getElementById('login-btn');
-      btn.textContent = 'Signing in...';
-      btn.disabled = true;
+      resetProductForm();
+      showAdminSection('products');
+    }
 
-      const { data, error } = await Auth.login(email, password);
-      if (error) {
-        showToast(error.message || 'Invalid credentials', 'error');
-        btn.textContent = 'Sign In';
-        btn.disabled = false;
+    function editProduct(id) {
+      const product = allProducts.find(p => p.id == id);
+      if (!product) return;
+
+      document.getElementById('edit-product-id').value = product.id;
+      document.getElementById('p-name').value = product.name || '';
+      document.getElementById('p-brand').value = product.brand || '';
+      document.getElementById('p-price').value = product.price || '';
+      document.getElementById('p-stock').value = product.stock || 0;
+      document.getElementById('p-size').value = product.size || '';
+      document.getElementById('p-category').value = product.category || 'Oud';
+      document.getElementById('p-desc').value = product.description || '';
+      document.getElementById('p-notes').value = (product.notes || []).join(', ');
+      document.getElementById('p-badge').value = product.badge || '';
+      document.getElementById('p-emoji').value = product.emoji || '🧴';
+      document.getElementById('p-featured').checked = product.featured || false;
+      pendingImageUrl = product.image_url || '';
+
+      if (pendingImageUrl) {
+        document.getElementById('upload-preview').src = pendingImageUrl;
+        document.getElementById('upload-preview').style.display = 'block';
+        document.getElementById('upload-text').textContent = '✓ Image loaded';
+      }
+
+      document.getElementById('product-form-title').textContent = 'Edit Product';
+      document.getElementById('save-product-btn').textContent = 'Update Product';
+      showAdminSection('add-product');
+    }
+
+    async function deleteProduct(id) {
+      if (!confirm('Are you sure you want to delete this product?')) return;
+      const { error } = await Products.delete(id);
+      if (error) { showToast('Delete failed', 'error'); return; }
+      showToast('Product deleted', 'success');
+      loadAdminProducts();
+    }
+
+    function resetProductForm() {
+      document.getElementById('edit-product-id').value = '';
+      ['p-name','p-brand','p-price','p-size','p-desc','p-notes','p-badge'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      document.getElementById('p-stock').value = '10';
+      document.getElementById('p-emoji').value = '🧴';
+      document.getElementById('p-featured').checked = false;
+      document.getElementById('upload-preview').style.display = 'none';
+      document.getElementById('upload-text').textContent = 'Click to upload an image';
+      document.getElementById('p-image-file').value = '';
+      pendingImageUrl = '';
+      document.getElementById('product-form-title').textContent = 'Add New Product';
+      document.getElementById('save-product-btn').textContent = 'Add Product';
+    }
+
+    // ─── ORDERS ──────────────────────────────────────────────
+    async function loadAdminOrders() {
+      const { data: orders } = await Orders.getAll();
+      const tbody = document.getElementById('admin-orders-body');
+
+      if (!orders || !orders.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);">No orders</td></tr>';
         return;
       }
 
-      showToast('Welcome back!', 'success');
-
-      // Check if admin and redirect accordingly
-      const isAdmin = await Auth.isAdmin();
-      setTimeout(() => {
-        if (isAdmin) {
-          window.location.href = '/admin/dashboard.html';
-        } else {
-          window.location.href = '/index.html';
-        }
-      }, 500);
+      tbody.innerHTML = orders.map(o => `
+        <tr>
+          <td style="font-family:var(--font-display);color:var(--cream);">${o.id}</td>
+          <td>${o.customer_name || 'N/A'}<br><span style="font-size:0.65rem;color:var(--muted);">${o.customer_phone || ''}</span></td>
+          <td>${(o.items && o.items.length) || 0}</td>
+          <td style="color:var(--gold);">${formatPrice(o.total || 0)}</td>
+          <td><span class="badge badge-${statusBadge(o.status)}">${o.status || 'pending'}</span></td>
+          <td>${new Date(o.created_at).toLocaleDateString()}</td>
+          <td>
+            <select class="form-select" style="font-size:0.68rem;padding:0.3rem 0.5rem;width:auto;" onchange="changeOrderStatus('${o.id}', this.value)">
+              <option value="pending" ${o.status==='pending'?'selected':''}>Pending</option>
+              <option value="confirmed" ${o.status==='confirmed'?'selected':''}>Confirmed</option>
+              <option value="shipped" ${o.status==='shipped'?'selected':''}>Shipped</option>
+              <option value="delivered" ${o.status==='delivered'?'selected':''}>Delivered</option>
+              <option value="cancelled" ${o.status==='cancelled'?'selected':''}>Cancelled</option>
+            </select>
+          </td>
+        </tr>
+      `).join('');
     }
 
-    async function handleForgotPassword() {
-      const email = document.getElementById('forgot-email').value.trim();
-      if (!email) {
-        showToast('Please enter your email', 'error');
-        return;
-      }
-      const { error } = await Auth.resetPassword(email);
-      if (error) {
-        showToast(error.message, 'error');
-        return;
-      }
-      showToast('Password reset link sent! Check your email.', 'success');
-      showLoginForm();
+    async function changeOrderStatus(orderId, status) {
+      const { error } = await Orders.updateStatus(orderId, status);
+      if (error) { showToast('Failed to update', 'error'); return; }
+      showToast(`Order status: ${status}`, 'success');
     }
 
-    function showFieldError(id, msg) {
-      const el = document.getElementById(id);
-      el.textContent = msg;
-      el.style.display = 'block';
-      el.parentElement.classList.add('error');
-      setTimeout(() => {
-        el.style.display = 'none';
-        el.parentElement.classList.remove('error');
-      }, 3000);
+    // ─── LOGOUT ──────────────────────────────────────────────
+    async function adminLogout() {
+      await Auth.logout();
+      window.location.href = '/admin/login.html';
     }
   </script>
 </body>
