@@ -4,142 +4,87 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <title>Login — Scent Haven</title>
-  <link rel="stylesheet" href="/assets/css/core.css">
-  <link rel="stylesheet" href="/assets/css/pages.css">
+  <title>Admin Login — Scent Haven</title>
+  <link rel="stylesheet" href="../assets/css/core.css">
+  <link rel="stylesheet" href="../assets/css/pages.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/assets/js/supabase.js"></script>
-  <script src="/assets/js/db.js"></script>
-  <script src="/assets/js/ui.js"></script>
+  <script src="../assets/js/supabase.js"></script>
+  <script src="../assets/js/db.js"></script>
+  <script src="../assets/js/ui.js"></script>
 </head>
 <body>
   <canvas id="particles-canvas"></canvas>
 
   <div class="auth-page">
     <div class="auth-card">
-      <div class="auth-logo"><a href="/index.html"><img src="https://vudxovvqpjdhlemugtqh.supabase.co/storage/v1/object/public/assets/logo.png" alt="Scent Haven" style="height:56px;width:auto;display:block;margin:0 auto 0.5rem;"></a></div>
-      <h1 class="auth-title">Welcome Back</h1>
-      <p class="auth-subtitle">Sign in to your account</p>
+      <div class="auth-logo"><a href="/index.html"><img src="https://vudxovvqpjdhlemugtqh.supabase.co/storage/v1/object/public/assets/logo.png" alt="Scent Haven" style="height:120px;width:auto;display:block;margin:0 auto 0.5rem;"></a></div>
+      <div style="text-align:center;margin-bottom:1rem;">
+        <span class="badge badge-outline" style="font-size:0.56rem;">🔒 Admin Access</span>
+      </div>
+      <h1 class="auth-title">Admin Panel</h1>
+      <p class="auth-subtitle">Restricted access — administrators only</p>
 
-      <!-- Login Form -->
-      <div id="login-form">
-        <div class="form-group">
-          <label class="form-label">Email Address</label>
-          <input type="email" class="form-input" id="login-email" placeholder="your@email.com" autocomplete="email">
-          <div class="form-error" id="email-error"></div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Password</label>
-          <input type="password" class="form-input" id="login-password" placeholder="Enter your password" autocomplete="current-password">
-          <div class="form-error" id="password-error"></div>
-        </div>
-        <div style="text-align:right;margin-bottom:1.2rem;">
-          <a href="#" onclick="showForgotPassword()" style="font-size:0.72rem;color:var(--gold);">Forgot password?</a>
-        </div>
-        <button class="btn btn-primary btn-block" id="login-btn" onclick="handleLogin()">Sign In</button>
+      <div class="form-group">
+        <label class="form-label">Admin Email</label>
+        <input type="email" class="form-input" id="admin-email" placeholder="admin@scenthaven.com" value="admin@scenthaven.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-input" id="admin-password" placeholder="Enter admin password">
       </div>
 
-      <!-- Forgot Password Form -->
-      <div id="forgot-form" style="display:none;">
-        <div class="form-group">
-          <label class="form-label">Email Address</label>
-          <input type="email" class="form-input" id="forgot-email" placeholder="your@email.com">
-        </div>
-        <button class="btn btn-primary btn-block" onclick="handleForgotPassword()">Send Reset Link</button>
-        <div style="text-align:center;margin-top:1rem;">
-          <a href="#" onclick="showLoginForm()" style="font-size:0.72rem;color:var(--gold);">← Back to login</a>
-        </div>
-      </div>
+      <button class="btn btn-primary btn-block" id="admin-login-btn" onclick="handleAdminLogin()">Access Dashboard</button>
 
       <div class="auth-footer">
-        Don't have an account? <a href="/register.html">Create one</a>
+        <a href="/index.html" style="color:var(--muted);">← Back to website</a>
       </div>
     </div>
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Enter key support
-      document.getElementById('login-password').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleLogin();
-      });
+    document.getElementById('admin-password').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleAdminLogin();
     });
 
-    function showForgotPassword() {
-      document.getElementById('login-form').style.display = 'none';
-      document.getElementById('forgot-form').style.display = 'block';
-    }
+    document.addEventListener('DOMContentLoaded', async () => {
+      // If already admin, redirect
+      const isAdmin = await Auth.isAdmin();
+      if (isAdmin) window.location.href = '/admin/dashboard.html';
+    });
 
-    function showLoginForm() {
-      document.getElementById('login-form').style.display = 'block';
-      document.getElementById('forgot-form').style.display = 'none';
-    }
+    async function handleAdminLogin() {
+      const email = document.getElementById('admin-email').value.trim();
+      const password = document.getElementById('admin-password').value;
 
-    async function handleLogin() {
-      const email = document.getElementById('login-email').value.trim();
-      const password = document.getElementById('login-password').value;
-
-      // Validate
-      let valid = true;
-      if (!email) {
-        showFieldError('email-error', 'Email is required');
-        valid = false;
+      if (!email || !password) {
+        showToast('Please fill in all fields', 'error');
+        return;
       }
-      if (!password) {
-        showFieldError('password-error', 'Password is required');
-        valid = false;
-      }
-      if (!valid) return;
 
-      const btn = document.getElementById('login-btn');
-      btn.textContent = 'Signing in...';
+      const btn = document.getElementById('admin-login-btn');
+      btn.textContent = 'Authenticating...';
       btn.disabled = true;
 
       const { data, error } = await Auth.login(email, password);
       if (error) {
-        showToast(error.message || 'Invalid credentials', 'error');
-        btn.textContent = 'Sign In';
+        showToast('Authentication failed', 'error');
+        btn.textContent = 'Access Dashboard';
         btn.disabled = false;
         return;
       }
 
-      showToast('Welcome back!', 'success');
-
-      // Check if admin and redirect accordingly
+      // Verify admin role
       const isAdmin = await Auth.isAdmin();
-      setTimeout(() => {
-        if (isAdmin) {
-          window.location.href = '/admin/dashboard.html';
-        } else {
-          window.location.href = '/index.html';
-        }
-      }, 500);
-    }
-
-    async function handleForgotPassword() {
-      const email = document.getElementById('forgot-email').value.trim();
-      if (!email) {
-        showToast('Please enter your email', 'error');
+      if (!isAdmin) {
+        showToast('Access denied. You are not an administrator.', 'error');
+        await Auth.logout();
+        btn.textContent = 'Access Dashboard';
+        btn.disabled = false;
         return;
       }
-      const { error } = await Auth.resetPassword(email);
-      if (error) {
-        showToast(error.message, 'error');
-        return;
-      }
-      showToast('Password reset link sent! Check your email.', 'success');
-      showLoginForm();
-    }
 
-    function showFieldError(id, msg) {
-      const el = document.getElementById(id);
-      el.textContent = msg;
-      el.style.display = 'block';
-      el.parentElement.classList.add('error');
-      setTimeout(() => {
-        el.style.display = 'none';
-        el.parentElement.classList.remove('error');
-      }, 3000);
+      showToast('Welcome, Admin!', 'success');
+      setTimeout(() => { window.location.href = '/admin/dashboard.html'; }, 500);
     }
   </script>
 </body>
