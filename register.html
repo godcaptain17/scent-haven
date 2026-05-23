@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <title>Scent Haven — Luxury Perfumes</title>
+  <meta name="description" content="Curating the world's finest fragrances. Discover luxury perfumes from Tom Ford, Creed, MFK and more.">
+  <link rel="stylesheet" href="/assets/css/core.css">
+  <link rel="stylesheet" href="/assets/css/pages.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/assets/js/supabase.js"></script>
+  <script src="/assets/js/db.js"></script>
+  <script src="/assets/js/ui.js"></script>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div class="loading-overlay" id="loading-screen">
+    <div class="spinner" style="width:36px;height:36px;border-width:2.5px;"></div>
+    <div class="loading-logo"><img src="https://vudxovvqpjdhlemugtqh.supabase.co/storage/v1/object/public/assets/logo.png" alt="Scent Haven" style="height:60px;width:auto;"></div>
+  </div>
+
+  <!-- Particles -->
+  <canvas id="particles-canvas"></canvas>
+
+  <!-- Navbar -->
+  <nav class="navbar" id="navbar"></nav>
+
+  <div class="page-body">
+    <!-- ═══ HERO ═══ -->
+    <section class="hero" id="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-orb" style="width:280px;height:280px;top:15%;left:8%;background:radial-gradient(circle,rgba(201,168,76,0.08),transparent);--dur:6s;"></div>
+      <div class="hero-orb" style="width:200px;height:200px;bottom:20%;right:12%;background:radial-gradient(circle,rgba(139,34,82,0.12),transparent);--dur:4.5s;"></div>
+      <div class="hero-orb" style="width:140px;height:140px;top:60%;left:55%;background:radial-gradient(circle,rgba(232,201,122,0.06),transparent);--dur:5.5s;"></div>
+      <div class="hero-content">
+        <div class="hero-eyebrow">✦ Luxury Fragrance House ✦</div>
+        <h1 class="hero-title">
+          Scent
+          <em>Haven</em>
+        </h1>
+        <p class="hero-subtitle">Where every fragrance tells a story</p>
+        <div class="hero-actions">
+          <a href="/shop.html" class="btn btn-primary btn-lg">Explore Collection</a>
+          <a href="#featured" class="btn btn-outline btn-lg">Featured Scents</a>
+        </div>
+      </div>
+      <div class="hero-scroll">
+        <span>Scroll</span>
+        <div class="hero-scroll-line"></div>
+      </div>
+    </section>
+
+    <!-- ═══ MARQUEE ═══ -->
+    <div class="marquee">
+      <div class="marquee-track">
+        <span class="marquee-item">Tom Ford</span><span class="marquee-item marquee-dot">✦</span>
+        <span class="marquee-item">Creed</span><span class="marquee-item marquee-dot">✦</span>
+        <span class="marquee-item">Maison Francis Kurkdjian</span><span class="marquee-item marquee-dot">✦</span>
+        <span class="marquee-item">Dior</span><span class="marquee-item marquee-dot">✦</span>
+        <span class="marquee-item">Chanel</span><span class="marquee-item marquee-dot">✦</span>
+        <span class="marquee-item">YSL</span><span class="marquee-item marquee-dot">✦</span>
+        <span class="marquee-item">Versace</span><span class="marquee-item marquee-dot">✦</span>
+        <span class="marquee-item">Guerlain</span><span class="marquee-item marquee-dot">✦</span>
+        <!-- Duplicate for seamless loop -->
+        <span class="marquee-item">Tom Ford</span><span class="marquee-item marquee-dot">✦</span>
+        <span class="marquee-item">Creed</span><span class="marquee-item marquee-dot">✦</span>
+        <span class="marquee-item">Maison Francis Kurkdjian</span><span class="marquee-item marquee-dot">✦</span>
+        <span class="marquee-item">Dior</span><span class="marquee-item marquee-dot">✦</span>
+        <span class="marquee-item">Chanel</span><span class="marquee-item marquee-dot">✦</span>
+        <span class="marquee-item">YSL</span><span class="marquee-item marquee-dot">✦</span>
+        <span class="marquee-item">Versace</span><span class="marquee-item marquee-dot">✦</span>
+        <span class="marquee-item">Guerlain</span><span class="marquee-item marquee-dot">✦</span>
+      </div>
+    </div>
+
+    <!-- ═══ FEATURED ═══ -->
+    <section class="section-featured" id="featured">
+      <div class="container">
+        <div class="fade-up">
+          <span class="section-eyebrow">✦ Curated Selection</span>
+          <h2 class="section-title">Featured <em>Fragrances</em></h2>
+          <p class="body-text">Hand-picked luxury scents for the distinguished collector.</p>
+        </div>
+        <div class="featured-grid" id="featured-grid">
+          <!-- Populated by JS -->
+        </div>
+        <div style="text-align:center;margin-top:2.5rem;" class="fade-up">
+          <a href="/shop.html" class="btn btn-outline">View Full Collection</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ ABOUT ═══ -->
+    <section class="section-about" id="about">
+      <div class="container">
+        <div class="about-grid">
+          <div class="about-visual fade-up">
+            <div class="about-bottles">
+              <div class="about-bottle" style="--dur:4s;"><span>🌹</span><p>Rose</p></div>
+              <div class="about-bottle" style="--dur:5s;"><span>🖤</span><p>Oud</p></div>
+              <div class="about-bottle" style="--dur:3.5s;"><span>💎</span><p>Crystal</p></div>
+              <div class="about-bottle" style="--dur:4.5s;"><span>🌿</span><p>Vetiver</p></div>
+              <div class="about-bottle" style="--dur:5.5s;"><span>✨</span><p>Amber</p></div>
+            </div>
+          </div>
+          <div class="fade-up">
+            <span class="section-eyebrow">✦ Our Story</span>
+            <h2 class="section-title">The Art of <em>Fragrance</em></h2>
+            <p class="body-text">Scent Haven was born from a passion for the extraordinary. We believe every fragrance is a journey — from the first spritz to the lingering dry-down, each scent captures emotions, memories, and moments.</p>
+            <p class="body-text">We source only the finest niche and designer perfumes, ensuring every bottle in our collection meets the highest standards of artistry and craftsmanship.</p>
+            <div class="about-stats">
+              <div class="stat-item"><span class="stat-number">200+</span><span class="stat-label">Fragrances</span></div>
+              <div class="stat-item"><span class="stat-number">50+</span><span class="stat-label">Luxury Brands</span></div>
+              <div class="stat-item"><span class="stat-number">5K+</span><span class="stat-label">Happy Clients</span></div>
+              <div class="stat-item"><span class="stat-number">100%</span><span class="stat-label">Authentic</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ CONTACT ═══ -->
+    <section class="section-contact" id="contact">
+      <div class="container">
+        <div class="fade-up text-center">
+          <span class="section-eyebrow">✦ Get In Touch</span>
+          <h2 class="section-title">Contact <em>Us</em></h2>
+        </div>
+        <div class="contact-grid">
+          <div class="fade-up">
+            <p class="body-text">Have questions about a fragrance? Want a personalized recommendation? We're here to help you discover your signature scent.</p>
+            <div style="margin-top:1.5rem;">
+              <a href="https://wa.me/2349033429640" target="_blank" class="contact-link">
+                <span class="contact-link-icon">💬</span>
+                <div><span class="contact-link-label">WhatsApp</span><span class="contact-link-value">+234 903 342 9640</span></div>
+              </a>
+              <a href="mailto:hello@scenthaven.com" class="contact-link">
+                <span class="contact-link-icon">📧</span>
+                <div><span class="contact-link-label">Email</span><span class="contact-link-value">hello@scenthaven.com</span></div>
+              </a>
+              <a href="https://instagram.com/scenthaven" target="_blank" class="contact-link">
+                <span class="contact-link-icon">📸</span>
+                <div><span class="contact-link-label">Instagram</span><span class="contact-link-value">@scenthaven</span></div>
+              </a>
+            </div>
+          </div>
+          <div class="fade-up">
+            <div class="glass-card" style="padding:2rem;">
+              <h3 class="display-md" style="font-size:1.4rem;margin-bottom:1rem;">How to Order</h3>
+              <div class="order-steps">
+                <div class="order-step"><span class="order-step-num">1</span> Browse our collection and add items to cart</div>
+                <div class="order-step"><span class="order-step-num">2</span> Review your cart and proceed to checkout</div>
+                <div class="order-step"><span class="order-step-num">3</span> Confirm your order via WhatsApp</div>
+                <div class="order-step"><span class="order-step-num">4</span> Receive your fragrance at your doorstep</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer" id="site-footer"></footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      await renderNavbar('home');
+
+      // Load featured products
+      const { data: featured } = await Products.getAll({ featured: true });
+      const grid = document.getElementById('featured-grid');
+      if (grid && featured) {
+        grid.innerHTML = featured.slice(0, 8).map(p => productCardHTML(p)).join('');
+      }
+
+      initScrollReveal();
+    });
+  </script>
+</body>
+</html>

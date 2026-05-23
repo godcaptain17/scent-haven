@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <title>Cart — Scent Haven</title>
+  <link rel="stylesheet" href="/assets/css/core.css">
+  <link rel="stylesheet" href="/assets/css/pages.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/assets/js/supabase.js"></script>
+  <script src="/assets/js/db.js"></script>
+  <script src="/assets/js/ui.js"></script>
+</head>
+<body>
+  <div class="loading-overlay" id="loading-screen">
+    <div class="spinner" style="width:36px;height:36px;border-width:2.5px;"></div>
+    <div class="loading-logo"><img src="https://vudxovvqpjdhlemugtqh.supabase.co/storage/v1/object/public/assets/logo.png" alt="Scent Haven" style="height:60px;width:auto;"></div>
+  </div>
+  <canvas id="particles-canvas"></canvas>
+  <nav class="navbar" id="navbar"></nav>
+
+  <div class="page-body">
+    <div class="page-hero">
+      <span class="section-eyebrow">✦ Your Selections</span>
+      <h1 class="section-title">Shopping <em>Cart</em></h1>
+    </div>
+
+    <div class="container">
+      <div class="cart-layout" id="cart-layout">
+        <!-- Cart Items -->
+        <div>
+          <div class="cart-items" id="cart-items">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="cart-summary" id="cart-summary">
+          <h3 class="cart-summary-title">Order Summary</h3>
+          <div id="summary-rows"></div>
+          <div class="cart-summary-total">
+            <span>Total</span>
+            <span id="cart-total">₦0</span>
+          </div>
+          <div style="margin-top:1.5rem;display:flex;flex-direction:column;gap:0.8rem;">
+            <a href="/checkout.html" class="btn btn-primary btn-block" id="checkout-btn">Proceed to Checkout</a>
+            <button class="btn btn-success btn-block" onclick="whatsappCheckout()">
+              💬 Order via WhatsApp
+            </button>
+          </div>
+          <div style="margin-top:1rem;text-align:center;">
+            <a href="/shop.html" style="font-size:0.72rem;color:var(--gold);">← Continue Shopping</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty Cart -->
+      <div id="cart-empty" style="display:none;">
+        <div class="empty-state">
+          <div class="empty-state-icon">🛍️</div>
+          <div class="empty-state-title">Your cart is empty</div>
+          <div class="empty-state-text">Add some gorgeous scents to get started</div>
+          <a href="/shop.html" class="btn btn-primary">Browse Collection</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer" id="site-footer"></footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      await renderNavbar();
+      await renderCart();
+    });
+
+    async function renderCart() {
+      const cartWithProducts = await Cart.getCartWithProducts();
+      const itemsContainer = document.getElementById('cart-items');
+      const summaryRows = document.getElementById('summary-rows');
+      const cartLayout = document.getElementById('cart-layout');
+      const cartEmpty = document.getElementById('cart-empty');
+
+      if (!cartWithProducts || cartWithProducts.length === 0) {
+        cartLayout.style.display = 'none';
+        cartEmpty.style.display = 'block';
+        return;
+      }
+
+      cartLayout.style.display = 'grid';
+      cartEmpty.style.display = 'none';
+
+      let subtotal = 0;
+
+      itemsContainer.innerHTML = cartWithProducts.map(item => {
+        const p = item.product;
+        const lineTotal = p.price * item.quantity;
+        subtotal += lineTotal;
+
+        const imgContent = p.image_url
+          ? `<img src="${p.image_url}" alt="${p.name}">`
+          : p.emoji || '🧴';
+
+        return `
+          <div class="cart-item">
+            <div class="cart-item-image">${imgContent}</div>
+            <div class="cart-item-info">
+              <div class="cart-item-brand">${p.brand || ''}</div>
+              <div class="cart-item-name">${p.name}</div>
+              <div class="cart-item-size">${p.size || ''}</div>
+              <div class="qty-control" style="margin-top:0.5rem;">
+                <button class="qty-btn" onclick="updateItemQty(${p.id}, ${item.quantity - 1})">−</button>
+                <div class="qty-display">${item.quantity}</div>
+                <button class="qty-btn" onclick="updateItemQty(${p.id}, ${item.quantity + 1})">+</button>
+              </div>
+            </div>
+            <div class="cart-item-price">${formatPrice(lineTotal)}</div>
+            <button class="cart-item-remove" onclick="removeItem(${p.id})" title="Remove">✕</button>
+          </div>
+        `;
+      }).join('');
+
+      const delivery = subtotal > 100000 ? 0 : 3000;
+      const total = subtotal + delivery;
+
+      summaryRows.innerHTML = `
+        <div class="cart-summary-row"><span>Subtotal (${cartWithProducts.length} items)</span><span>${formatPrice(subtotal)}</span></div>
+        <div class="cart-summary-row"><span>Delivery</span><span>${delivery === 0 ? '<span style="color:var(--success);">Free</span>' : formatPrice(delivery)}</span></div>
+      `;
+      document.getElementById('cart-total').textContent = formatPrice(total);
+    }
+
+    async function updateItemQty(productId, qty) {
+      if (qty <= 0) {
+        await Cart.removeItem(productId);
+      } else {
+        await Cart.updateQuantity(productId, qty);
+      }
+      await renderCart();
+      updateCartCount();
+    }
+
+    async function removeItem(productId) {
+      await Cart.removeItem(productId);
+      showToast('Item removed', 'info');
+      await renderCart();
+      updateCartCount();
+    }
+
+    async function whatsappCheckout() {
+      const cartWithProducts = await Cart.getCartWithProducts();
+      if (!cartWithProducts.length) { showToast('Your cart is empty!', 'error'); return; }
+
+      let total = 0;
+      let msg = '🌹 *SCENT HAVEN ORDER* 🌹\n\n';
+      cartWithProducts.forEach(item => {
+        const p = item.product;
+        const lineTotal = p.price * item.quantity;
+        total += lineTotal;
+        msg += `• *${p.name}* (${p.brand})\n  Size: ${p.size || 'N/A'} | Qty: ${item.quantity} | ₦${lineTotal.toLocaleString()}\n\n`;
+      });
+      msg += `━━━━━━━━━━━━\n💰 *TOTAL: ₦${total.toLocaleString()}*\n\nPlease confirm my order. Thank you! 🙏`;
+      window.open('https://wa.me/2349033429640?text=' + encodeURIComponent(msg), '_blank');
+    }
+  </script>
+</body>
+</html>

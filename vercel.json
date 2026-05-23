@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <title>Product — Scent Haven</title>
+  <link rel="stylesheet" href="/assets/css/core.css">
+  <link rel="stylesheet" href="/assets/css/pages.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/assets/js/supabase.js"></script>
+  <script src="/assets/js/db.js"></script>
+  <script src="/assets/js/ui.js"></script>
+</head>
+<body>
+  <div class="loading-overlay" id="loading-screen">
+    <div class="spinner" style="width:36px;height:36px;border-width:2.5px;"></div>
+    <div class="loading-logo"><img src="https://vudxovvqpjdhlemugtqh.supabase.co/storage/v1/object/public/assets/logo.png" alt="Scent Haven" style="height:60px;width:auto;"></div>
+  </div>
+  <canvas id="particles-canvas"></canvas>
+  <nav class="navbar" id="navbar"></nav>
+
+  <div class="page-body">
+    <div class="product-detail">
+      <div class="container">
+        <!-- Breadcrumb -->
+        <div style="padding-bottom:1.5rem;">
+          <a href="/shop.html" class="nav-link" style="font-size:0.72rem;">← Back to Shop</a>
+        </div>
+
+        <div class="product-detail-grid" id="product-detail">
+          <!-- Populated by JS -->
+          <div style="grid-column:1/-1;text-align:center;padding:4rem;">
+            <div class="spinner" style="margin:0 auto;"></div>
+          </div>
+        </div>
+
+        <!-- Related Products -->
+        <div style="padding:4rem 0 2rem;">
+          <h2 class="section-title" style="font-size:1.6rem;">You May Also <em>Like</em></h2>
+          <div class="featured-grid" id="related-grid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer" id="site-footer"></footer>
+
+  <script>
+    let currentQty = 1;
+    let currentProduct = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await renderNavbar('shop');
+
+      const params = new URLSearchParams(window.location.search);
+      const productId = params.get('id');
+      if (!productId) {
+        window.location.href = '/shop.html';
+        return;
+      }
+
+      const { data: product } = await Products.getById(productId);
+      if (!product) {
+        document.getElementById('product-detail').innerHTML = `
+          <div style="grid-column:1/-1;" class="empty-state">
+            <div class="empty-state-icon">😔</div>
+            <div class="empty-state-title">Product Not Found</div>
+            <div class="empty-state-text">This fragrance may no longer be available</div>
+            <a href="/shop.html" class="btn btn-outline">Browse Collection</a>
+          </div>`;
+        return;
+      }
+
+      currentProduct = product;
+      document.title = `${product.name} — Scent Haven`;
+
+      const imageContent = product.image_url
+        ? `<img src="${product.image_url}" alt="${product.name}">`
+        : `<span class="product-detail-emoji">${product.emoji || '🧴'}</span>`;
+
+      const notes = (product.notes || []).map(n =>
+        `<span class="badge badge-outline">${n}</span>`
+      ).join('');
+
+      const isWishlisted = await Wishlist.isWishlisted(product.id);
+
+      document.getElementById('product-detail').innerHTML = `
+        <div class="product-detail-image fade-up">
+          ${imageContent}
+          ${product.badge ? `<span class="badge badge-gold product-card-badge" style="position:absolute;top:1rem;left:1rem;">${product.badge}</span>` : ''}
+        </div>
+        <div class="fade-up">
+          <div class="product-detail-brand">${product.brand || ''}</div>
+          <h1 class="product-detail-name">${product.name}</h1>
+          <div style="margin-bottom:1rem;">${renderStars(product.rating || 0)} <span class="text-muted" style="font-size:0.72rem;">(${product.rating || 0})</span></div>
+          <div class="product-detail-price">${formatPrice(product.price)} <small>· ${product.size || ''}</small></div>
+          <p class="product-detail-desc">${product.description || ''}</p>
+          <div class="product-detail-notes">${notes}</div>
+          <div class="product-detail-meta">
+            <div><div class="meta-item-label">Category</div><div class="meta-item-value">${product.category || 'N/A'}</div></div>
+            <div><div class="meta-item-label">Size</div><div class="meta-item-value">${product.size || 'N/A'}</div></div>
+            <div><div class="meta-item-label">Availability</div><div class="meta-item-value">${product.stock > 0 ? `<span style="color:var(--success);">In Stock (${product.stock})</span>` : `<span style="color:var(--error);">Out of Stock</span>`}</div></div>
+            <div><div class="meta-item-label">Brand</div><div class="meta-item-value">${product.brand || 'N/A'}</div></div>
+          </div>
+          <div class="product-detail-actions">
+            <div class="qty-control">
+              <button class="qty-btn" onclick="changeQty(-1)">−</button>
+              <div class="qty-display" id="qty-display">1</div>
+              <button class="qty-btn" onclick="changeQty(1)">+</button>
+            </div>
+            <button class="btn btn-primary btn-lg" id="add-to-cart-main" onclick="addProductToCart()">
+              Add to Cart — ${formatPrice(product.price)}
+            </button>
+            <button class="btn ${isWishlisted ? 'btn-primary' : 'btn-ghost'}" id="wishlist-btn" onclick="toggleWishlist()">
+              ${isWishlisted ? '♥ Wishlisted' : '♡ Wishlist'}
+            </button>
+          </div>
+        </div>
+      `;
+
+      // Load related products
+      const { data: allProducts } = await Products.getAll({ category: product.category });
+      const related = (allProducts || []).filter(p => p.id !== product.id).slice(0, 4);
+      const relatedGrid = document.getElementById('related-grid');
+      if (relatedGrid && related.length) {
+        relatedGrid.innerHTML = related.map(p => productCardHTML(p)).join('');
+      }
+
+      initScrollReveal();
+    });
+
+    function changeQty(delta) {
+      currentQty = Math.max(1, Math.min(10, currentQty + delta));
+      document.getElementById('qty-display').textContent = currentQty;
+      if (currentProduct) {
+        document.getElementById('add-to-cart-main').textContent = `Add to Cart — ${formatPrice(currentProduct.price * currentQty)}`;
+      }
+    }
+
+    async function addProductToCart() {
+      if (!currentProduct) return;
+      const { error } = await Cart.addItem(currentProduct.id, currentQty);
+      if (error) { showToast(error.message, 'error'); return; }
+      showToast(`${currentProduct.name} added to cart!`, 'success');
+      updateCartCount();
+    }
+
+    async function toggleWishlist() {
+      if (!currentProduct) return;
+      const { added, error } = await Wishlist.toggle(currentProduct.id);
+      if (error) { showToast(error.message, 'error'); return; }
+      const btn = document.getElementById('wishlist-btn');
+      if (added) {
+        btn.className = 'btn btn-primary';
+        btn.textContent = '♥ Wishlisted';
+        showToast('Added to wishlist!', 'success');
+      } else {
+        btn.className = 'btn btn-ghost';
+        btn.textContent = '♡ Wishlist';
+        showToast('Removed from wishlist', 'info');
+      }
+    }
+  </script>
+</body>
+</html>
