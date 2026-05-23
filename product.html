@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <title>Cart — Scent Haven</title>
+  <title>Product — Scent Haven</title>
   <link rel="stylesheet" href="/assets/css/core.css">
   <link rel="stylesheet" href="/assets/css/pages.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -21,47 +21,24 @@
   <nav class="navbar" id="navbar"></nav>
 
   <div class="page-body">
-    <div class="page-hero">
-      <span class="section-eyebrow">✦ Your Selections</span>
-      <h1 class="section-title">Shopping <em>Cart</em></h1>
-    </div>
+    <div class="product-detail">
+      <div class="container">
+        <!-- Breadcrumb -->
+        <div style="padding-bottom:1.5rem;">
+          <a href="/shop.html" class="nav-link" style="font-size:0.72rem;">← Back to Shop</a>
+        </div>
 
-    <div class="container">
-      <div class="cart-layout" id="cart-layout">
-        <!-- Cart Items -->
-        <div>
-          <div class="cart-items" id="cart-items">
-            <!-- Populated by JS -->
+        <div class="product-detail-grid" id="product-detail">
+          <!-- Populated by JS -->
+          <div style="grid-column:1/-1;text-align:center;padding:4rem;">
+            <div class="spinner" style="margin:0 auto;"></div>
           </div>
         </div>
 
-        <!-- Order Summary -->
-        <div class="cart-summary" id="cart-summary">
-          <h3 class="cart-summary-title">Order Summary</h3>
-          <div id="summary-rows"></div>
-          <div class="cart-summary-total">
-            <span>Total</span>
-            <span id="cart-total">₦0</span>
-          </div>
-          <div style="margin-top:1.5rem;display:flex;flex-direction:column;gap:0.8rem;">
-            <a href="/checkout.html" class="btn btn-primary btn-block" id="checkout-btn">Proceed to Checkout</a>
-            <button class="btn btn-success btn-block" onclick="whatsappCheckout()">
-              💬 Order via WhatsApp
-            </button>
-          </div>
-          <div style="margin-top:1rem;text-align:center;">
-            <a href="/shop.html" style="font-size:0.72rem;color:var(--gold);">← Continue Shopping</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Empty Cart -->
-      <div id="cart-empty" style="display:none;">
-        <div class="empty-state">
-          <div class="empty-state-icon">🛍️</div>
-          <div class="empty-state-title">Your cart is empty</div>
-          <div class="empty-state-text">Add some gorgeous scents to get started</div>
-          <a href="/shop.html" class="btn btn-primary">Browse Collection</a>
+        <!-- Related Products -->
+        <div style="padding:4rem 0 2rem;">
+          <h2 class="section-title" style="font-size:1.6rem;">You May Also <em>Like</em></h2>
+          <div class="featured-grid" id="related-grid"></div>
         </div>
       </div>
     </div>
@@ -70,98 +47,119 @@
   <footer class="site-footer" id="site-footer"></footer>
 
   <script>
+    let currentQty = 1;
+    let currentProduct = null;
+
     document.addEventListener('DOMContentLoaded', async () => {
-      await renderNavbar();
-      await renderCart();
-    });
+      await renderNavbar('shop');
 
-    async function renderCart() {
-      const cartWithProducts = await Cart.getCartWithProducts();
-      const itemsContainer = document.getElementById('cart-items');
-      const summaryRows = document.getElementById('summary-rows');
-      const cartLayout = document.getElementById('cart-layout');
-      const cartEmpty = document.getElementById('cart-empty');
-
-      if (!cartWithProducts || cartWithProducts.length === 0) {
-        cartLayout.style.display = 'none';
-        cartEmpty.style.display = 'block';
+      const params = new URLSearchParams(window.location.search);
+      const productId = params.get('id');
+      if (!productId) {
+        window.location.href = '/shop.html';
         return;
       }
 
-      cartLayout.style.display = 'grid';
-      cartEmpty.style.display = 'none';
-
-      let subtotal = 0;
-
-      itemsContainer.innerHTML = cartWithProducts.map(item => {
-        const p = item.product;
-        const lineTotal = p.price * item.quantity;
-        subtotal += lineTotal;
-
-        const imgContent = p.image_url
-          ? `<img src="${p.image_url}" alt="${p.name}">`
-          : p.emoji || '🧴';
-
-        return `
-          <div class="cart-item">
-            <div class="cart-item-image">${imgContent}</div>
-            <div class="cart-item-info">
-              <div class="cart-item-brand">${p.brand || ''}</div>
-              <div class="cart-item-name">${p.name}</div>
-              <div class="cart-item-size">${p.size || ''}</div>
-              <div class="qty-control" style="margin-top:0.5rem;">
-                <button class="qty-btn" onclick="updateItemQty(${p.id}, ${item.quantity - 1})">−</button>
-                <div class="qty-display">${item.quantity}</div>
-                <button class="qty-btn" onclick="updateItemQty(${p.id}, ${item.quantity + 1})">+</button>
-              </div>
-            </div>
-            <div class="cart-item-price">${formatPrice(lineTotal)}</div>
-            <button class="cart-item-remove" onclick="removeItem(${p.id})" title="Remove">✕</button>
-          </div>
-        `;
-      }).join('');
-
-      const delivery = subtotal > 100000 ? 0 : 3000;
-      const total = subtotal + delivery;
-
-      summaryRows.innerHTML = `
-        <div class="cart-summary-row"><span>Subtotal (${cartWithProducts.length} items)</span><span>${formatPrice(subtotal)}</span></div>
-        <div class="cart-summary-row"><span>Delivery</span><span>${delivery === 0 ? '<span style="color:var(--success);">Free</span>' : formatPrice(delivery)}</span></div>
-      `;
-      document.getElementById('cart-total').textContent = formatPrice(total);
-    }
-
-    async function updateItemQty(productId, qty) {
-      if (qty <= 0) {
-        await Cart.removeItem(productId);
-      } else {
-        await Cart.updateQuantity(productId, qty);
+      const { data: product } = await Products.getById(productId);
+      if (!product) {
+        document.getElementById('product-detail').innerHTML = `
+          <div style="grid-column:1/-1;" class="empty-state">
+            <div class="empty-state-icon">😔</div>
+            <div class="empty-state-title">Product Not Found</div>
+            <div class="empty-state-text">This fragrance may no longer be available</div>
+            <a href="/shop.html" class="btn btn-outline">Browse Collection</a>
+          </div>`;
+        return;
       }
-      await renderCart();
+
+      currentProduct = product;
+      document.title = `${product.name} — Scent Haven`;
+
+      const imageContent = product.image_url
+        ? `<img src="${product.image_url}" alt="${product.name}">`
+        : `<span class="product-detail-emoji">${product.emoji || '🧴'}</span>`;
+
+      const notes = (product.notes || []).map(n =>
+        `<span class="badge badge-outline">${n}</span>`
+      ).join('');
+
+      const isWishlisted = await Wishlist.isWishlisted(product.id);
+
+      document.getElementById('product-detail').innerHTML = `
+        <div class="product-detail-image fade-up">
+          ${imageContent}
+          ${product.badge ? `<span class="badge badge-gold product-card-badge" style="position:absolute;top:1rem;left:1rem;">${product.badge}</span>` : ''}
+        </div>
+        <div class="fade-up">
+          <div class="product-detail-brand">${product.brand || ''}</div>
+          <h1 class="product-detail-name">${product.name}</h1>
+          <div style="margin-bottom:1rem;">${renderStars(product.rating || 0)} <span class="text-muted" style="font-size:0.72rem;">(${product.rating || 0})</span></div>
+          <div class="product-detail-price">${formatPrice(product.price)} <small>· ${product.size || ''}</small></div>
+          <p class="product-detail-desc">${product.description || ''}</p>
+          <div class="product-detail-notes">${notes}</div>
+          <div class="product-detail-meta">
+            <div><div class="meta-item-label">Category</div><div class="meta-item-value">${product.category || 'N/A'}</div></div>
+            <div><div class="meta-item-label">Size</div><div class="meta-item-value">${product.size || 'N/A'}</div></div>
+            <div><div class="meta-item-label">Availability</div><div class="meta-item-value">${product.stock > 0 ? `<span style="color:var(--success);">In Stock (${product.stock})</span>` : `<span style="color:var(--error);">Out of Stock</span>`}</div></div>
+            <div><div class="meta-item-label">Brand</div><div class="meta-item-value">${product.brand || 'N/A'}</div></div>
+          </div>
+          <div class="product-detail-actions">
+            <div class="qty-control">
+              <button class="qty-btn" onclick="changeQty(-1)">−</button>
+              <div class="qty-display" id="qty-display">1</div>
+              <button class="qty-btn" onclick="changeQty(1)">+</button>
+            </div>
+            <button class="btn btn-primary btn-lg" id="add-to-cart-main" onclick="addProductToCart()">
+              Add to Cart — ${formatPrice(product.price)}
+            </button>
+            <button class="btn ${isWishlisted ? 'btn-primary' : 'btn-ghost'}" id="wishlist-btn" onclick="toggleWishlist()">
+              ${isWishlisted ? '♥ Wishlisted' : '♡ Wishlist'}
+            </button>
+          </div>
+        </div>
+      `;
+
+      // Load related products
+      const { data: allProducts } = await Products.getAll({ category: product.category });
+      const related = (allProducts || []).filter(p => p.id !== product.id).slice(0, 4);
+      const relatedGrid = document.getElementById('related-grid');
+      if (relatedGrid && related.length) {
+        relatedGrid.innerHTML = related.map(p => productCardHTML(p)).join('');
+      }
+
+      initScrollReveal();
+    });
+
+    function changeQty(delta) {
+      currentQty = Math.max(1, Math.min(10, currentQty + delta));
+      document.getElementById('qty-display').textContent = currentQty;
+      if (currentProduct) {
+        document.getElementById('add-to-cart-main').textContent = `Add to Cart — ${formatPrice(currentProduct.price * currentQty)}`;
+      }
+    }
+
+    async function addProductToCart() {
+      if (!currentProduct) return;
+      const { error } = await Cart.addItem(currentProduct.id, currentQty);
+      if (error) { showToast(error.message, 'error'); return; }
+      showToast(`${currentProduct.name} added to cart!`, 'success');
       updateCartCount();
     }
 
-    async function removeItem(productId) {
-      await Cart.removeItem(productId);
-      showToast('Item removed', 'info');
-      await renderCart();
-      updateCartCount();
-    }
-
-    async function whatsappCheckout() {
-      const cartWithProducts = await Cart.getCartWithProducts();
-      if (!cartWithProducts.length) { showToast('Your cart is empty!', 'error'); return; }
-
-      let total = 0;
-      let msg = '🌹 *SCENT HAVEN ORDER* 🌹\n\n';
-      cartWithProducts.forEach(item => {
-        const p = item.product;
-        const lineTotal = p.price * item.quantity;
-        total += lineTotal;
-        msg += `• *${p.name}* (${p.brand})\n  Size: ${p.size || 'N/A'} | Qty: ${item.quantity} | ₦${lineTotal.toLocaleString()}\n\n`;
-      });
-      msg += `━━━━━━━━━━━━\n💰 *TOTAL: ₦${total.toLocaleString()}*\n\nPlease confirm my order. Thank you! 🙏`;
-      window.open('https://wa.me/2349033429640?text=' + encodeURIComponent(msg), '_blank');
+    async function toggleWishlist() {
+      if (!currentProduct) return;
+      const { added, error } = await Wishlist.toggle(currentProduct.id);
+      if (error) { showToast(error.message, 'error'); return; }
+      const btn = document.getElementById('wishlist-btn');
+      if (added) {
+        btn.className = 'btn btn-primary';
+        btn.textContent = '♥ Wishlisted';
+        showToast('Added to wishlist!', 'success');
+      } else {
+        btn.className = 'btn btn-ghost';
+        btn.textContent = '♡ Wishlist';
+        showToast('Removed from wishlist', 'info');
+      }
     }
   </script>
 </body>

@@ -1,224 +1,168 @@
-/* ══════════════════════════════════════════════════════════════
-   SCENT HAVEN — Supabase Configuration & Auth
-   ══════════════════════════════════════════════════════════════
-   
-   SETUP INSTRUCTIONS:
-   1. Create a Supabase project at https://supabase.com
-   2. Replace the SUPABASE_URL and SUPABASE_ANON_KEY below
-   3. Run the SQL schema in your Supabase SQL Editor (see sql/schema.sql)
-   4. Enable Email Auth in Authentication > Providers
-   5. Create a storage bucket named 'products' (public) and 'avatars' (public)
-   ══════════════════════════════════════════════════════════════ */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <title>Cart — Scent Haven</title>
+  <link rel="stylesheet" href="/assets/css/core.css">
+  <link rel="stylesheet" href="/assets/css/pages.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/assets/js/supabase.js"></script>
+  <script src="/assets/js/db.js"></script>
+  <script src="/assets/js/ui.js"></script>
+</head>
+<body>
+  <div class="loading-overlay" id="loading-screen">
+    <div class="spinner" style="width:36px;height:36px;border-width:2.5px;"></div>
+    <div class="loading-logo"><img src="https://vudxovvqpjdhlemugtqh.supabase.co/storage/v1/object/public/assets/logo.png" alt="Scent Haven" style="height:60px;width:auto;"></div>
+  </div>
+  <canvas id="particles-canvas"></canvas>
+  <nav class="navbar" id="navbar"></nav>
 
-// ─── CONFIGURATION ───────────────────────────────────────────
-// Replace these with your actual Supabase project credentials
-const SUPABASE_URL = 'https://vudxovvqpjdhlemugtqh.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ1ZHhvdnZxcGpkaGxlbXVndHFoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0Nzc4NDIsImV4cCI6MjA5NTA1Mzg0Mn0.ruuDjj5PaWjdj_7-z6-YycKvsEGhDk6OJUANX19yB5E';
+  <div class="page-body">
+    <div class="page-hero">
+      <span class="section-eyebrow">✦ Your Selections</span>
+      <h1 class="section-title">Shopping <em>Cart</em></h1>
+    </div>
 
-// Initialize Supabase client (loaded via CDN in HTML)
-// Note: CDN exposes window.supabase — our client uses 'supabaseClient'
-let supabaseClient;
+    <div class="container">
+      <div class="cart-layout" id="cart-layout">
+        <!-- Cart Items -->
+        <div>
+          <div class="cart-items" id="cart-items">
+            <!-- Populated by JS -->
+          </div>
+        </div>
 
-function initSupabase() {
-  if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
-    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    return true;
-  }
-  console.warn('Supabase JS library not loaded. Running in demo mode.');
-  return false;
-}
+        <!-- Order Summary -->
+        <div class="cart-summary" id="cart-summary">
+          <h3 class="cart-summary-title">Order Summary</h3>
+          <div id="summary-rows"></div>
+          <div class="cart-summary-total">
+            <span>Total</span>
+            <span id="cart-total">₦0</span>
+          </div>
+          <div style="margin-top:1.5rem;display:flex;flex-direction:column;gap:0.8rem;">
+            <a href="/checkout.html" class="btn btn-primary btn-block" id="checkout-btn">Proceed to Checkout</a>
+            <button class="btn btn-success btn-block" onclick="whatsappCheckout()">
+              💬 Order via WhatsApp
+            </button>
+          </div>
+          <div style="margin-top:1rem;text-align:center;">
+            <a href="/shop.html" style="font-size:0.72rem;color:var(--gold);">← Continue Shopping</a>
+          </div>
+        </div>
+      </div>
 
-// ─── DEMO MODE ───────────────────────────────────────────────
-// When Supabase isn't configured, the app uses localStorage for demo
-// ─── DEMO MODE TOGGLE ─────────────────────────────────────
-// Set to TRUE to use localStorage (no backend needed)
-// Set to FALSE when your Supabase tables, auth, and products are fully set up
-const FORCE_DEMO = false;
+      <!-- Empty Cart -->
+      <div id="cart-empty" style="display:none;">
+        <div class="empty-state">
+          <div class="empty-state-icon">🛍️</div>
+          <div class="empty-state-title">Your cart is empty</div>
+          <div class="empty-state-text">Add some gorgeous scents to get started</div>
+          <a href="/shop.html" class="btn btn-primary">Browse Collection</a>
+        </div>
+      </div>
+    </div>
+  </div>
 
-const DEMO_MODE = false; // Permanently disabled — always use Supabase
+  <footer class="site-footer" id="site-footer"></footer>
 
-async function checkSupabaseReady() {
-  return true; // Always use Supabase
-}
-
-function getDemoUser() {
-  const stored = localStorage.getItem('sh_demo_user');
-  return stored ? JSON.parse(stored) : null;
-}
-
-function setDemoUser(user) {
-  localStorage.setItem('sh_demo_user', JSON.stringify(user));
-}
-
-function clearDemoUser() {
-  localStorage.removeItem('sh_demo_user');
-}
-
-// ─── AUTH MODULE ─────────────────────────────────────────────
-const Auth = {
-
-  // Register a new user
-  async register(email, password, fullName) {
-    await ensureReady();
-    if (DEMO_MODE) {
-      const user = { id: 'demo_' + Date.now(), email, full_name: fullName, role: 'user', created_at: new Date().toISOString() };
-      setDemoUser(user);
-      return { data: { user }, error: null };
-    }
-
-    const { data, error } = await supabaseClient.auth.signUp({
-      email,
-      password,
-      options: { data: { full_name: fullName } }
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      await renderNavbar();
+      await renderCart();
     });
 
-    if (!error && data.user) {
-      // Insert into profiles table
-      await supabaseClient.from('profiles').insert({
-        id: data.user.id,
-        email: email,
-        full_name: fullName,
-        role: 'user'
-      });
-    }
+    async function renderCart() {
+      const cartWithProducts = await Cart.getCartWithProducts();
+      const itemsContainer = document.getElementById('cart-items');
+      const summaryRows = document.getElementById('summary-rows');
+      const cartLayout = document.getElementById('cart-layout');
+      const cartEmpty = document.getElementById('cart-empty');
 
-    return { data, error };
-  },
-
-  // Login with email + password
-  async login(email, password) {
-    await ensureReady();
-    if (DEMO_MODE) {
-      // Demo: check hardcoded admin or create user session
-      // Demo mode disabled — should not reach here
-      return { data: null, error: { message: 'Demo mode is disabled. Please configure Supabase.' } };
-    }
-
-    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-    return { data, error };
-  },
-
-  // Logout
-  async logout() {
-    await ensureReady();
-    if (DEMO_MODE) {
-      clearDemoUser();
-      return { error: null };
-    }
-    const { error } = await supabaseClient.auth.signOut();
-    return { error };
-  },
-
-  // Get current session/user
-  async getUser() {
-    await ensureReady();
-    if (DEMO_MODE) {
-      const user = getDemoUser();
-      return user;
-    }
-
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    if (user) {
-      const { data: profile } = await supabaseClient.from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-      return { ...user, ...profile };
-    }
-    return null;
-  },
-
-  // Check if user is admin
-  async isAdmin() {
-    await ensureReady();
-    const user = await this.getUser();
-    if (!user) return false;
-
-    if (DEMO_MODE) return user.role === 'admin';
-
-    const { data } = await supabaseClient.from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-    return data && data.role === 'admin';
-  },
-
-  // Update profile
-  async updateProfile(updates) {
-    if (DEMO_MODE) {
-      const user = getDemoUser();
-      if (user) {
-        const updated = { ...user, ...updates };
-        setDemoUser(updated);
-        return { data: updated, error: null };
+      if (!cartWithProducts || cartWithProducts.length === 0) {
+        cartLayout.style.display = 'none';
+        cartEmpty.style.display = 'block';
+        return;
       }
-      return { data: null, error: { message: 'Not logged in' } };
+
+      cartLayout.style.display = 'grid';
+      cartEmpty.style.display = 'none';
+
+      let subtotal = 0;
+
+      itemsContainer.innerHTML = cartWithProducts.map(item => {
+        const p = item.product;
+        const lineTotal = p.price * item.quantity;
+        subtotal += lineTotal;
+
+        const imgContent = p.image_url
+          ? `<img src="${p.image_url}" alt="${p.name}">`
+          : p.emoji || '🧴';
+
+        return `
+          <div class="cart-item">
+            <div class="cart-item-image">${imgContent}</div>
+            <div class="cart-item-info">
+              <div class="cart-item-brand">${p.brand || ''}</div>
+              <div class="cart-item-name">${p.name}</div>
+              <div class="cart-item-size">${p.size || ''}</div>
+              <div class="qty-control" style="margin-top:0.5rem;">
+                <button class="qty-btn" onclick="updateItemQty(${p.id}, ${item.quantity - 1})">−</button>
+                <div class="qty-display">${item.quantity}</div>
+                <button class="qty-btn" onclick="updateItemQty(${p.id}, ${item.quantity + 1})">+</button>
+              </div>
+            </div>
+            <div class="cart-item-price">${formatPrice(lineTotal)}</div>
+            <button class="cart-item-remove" onclick="removeItem(${p.id})" title="Remove">✕</button>
+          </div>
+        `;
+      }).join('');
+
+      const delivery = subtotal > 100000 ? 0 : 3000;
+      const total = subtotal + delivery;
+
+      summaryRows.innerHTML = `
+        <div class="cart-summary-row"><span>Subtotal (${cartWithProducts.length} items)</span><span>${formatPrice(subtotal)}</span></div>
+        <div class="cart-summary-row"><span>Delivery</span><span>${delivery === 0 ? '<span style="color:var(--success);">Free</span>' : formatPrice(delivery)}</span></div>
+      `;
+      document.getElementById('cart-total').textContent = formatPrice(total);
     }
 
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    if (!user) return { data: null, error: { message: 'Not authenticated' } };
-
-    const { data, error } = await supabaseClient.from('profiles')
-      .update(updates)
-      .eq('id', user.id)
-      .select()
-      .single();
-    return { data, error };
-  },
-
-  // Reset password
-  async resetPassword(email) {
-    if (DEMO_MODE) {
-      return { data: {}, error: null }; // Simulated success
+    async function updateItemQty(productId, qty) {
+      if (qty <= 0) {
+        await Cart.removeItem(productId);
+      } else {
+        await Cart.updateQuantity(productId, qty);
+      }
+      await renderCart();
+      updateCartCount();
     }
-    const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + '/login.html'
-    });
-    return { data, error };
-  },
 
-  // Auth state listener
-  onAuthChange(callback) {
-    if (DEMO_MODE) return;
-    supabaseClient.auth.onAuthStateChange((event, session) => {
-      callback(event, session);
-    });
-  }
-};
+    async function removeItem(productId) {
+      await Cart.removeItem(productId);
+      showToast('Item removed', 'info');
+      await renderCart();
+      updateCartCount();
+    }
 
-// ─── ROUTE PROTECTION ────────────────────────────────────────
-async function requireAuth(redirectTo = '/login.html') {
-  const user = await Auth.getUser();
-  if (!user) {
-    window.location.href = redirectTo;
-    return null;
-  }
-  return user;
-}
+    async function whatsappCheckout() {
+      const cartWithProducts = await Cart.getCartWithProducts();
+      if (!cartWithProducts.length) { showToast('Your cart is empty!', 'error'); return; }
 
-async function requireAdmin(redirectTo = 'admin/login.html') {
-  const isAdmin = await Auth.isAdmin();
-  if (!isAdmin) {
-    window.location.href = redirectTo;
-    return null;
-  }
-  return await Auth.getUser();
-}
-
-async function redirectIfLoggedIn(to = '/profile.html') {
-  const user = await Auth.getUser();
-  if (user) {
-    window.location.href = to;
-  }
-}
-
-// Initialize immediately (CDN script is loaded before this file)
-initSupabase();
-
-// Check Supabase connectivity — stores promise so pages can await it
-const _supabaseReady = checkSupabaseReady();
-
-// Helper: call this before any data operation to ensure DEMO_MODE is resolved
-async function ensureReady() {
-  await _supabaseReady;
-}
+      let total = 0;
+      let msg = '🌹 *SCENT HAVEN ORDER* 🌹\n\n';
+      cartWithProducts.forEach(item => {
+        const p = item.product;
+        const lineTotal = p.price * item.quantity;
+        total += lineTotal;
+        msg += `• *${p.name}* (${p.brand})\n  Size: ${p.size || 'N/A'} | Qty: ${item.quantity} | ₦${lineTotal.toLocaleString()}\n\n`;
+      });
+      msg += `━━━━━━━━━━━━\n💰 *TOTAL: ₦${total.toLocaleString()}*\n\nPlease confirm my order. Thank you! 🙏`;
+      window.open('https://wa.me/2349033429640?text=' + encodeURIComponent(msg), '_blank');
+    }
+  </script>
+</body>
+</html>

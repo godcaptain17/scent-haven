@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <title>Checkout — Scent Haven</title>
+  <title>My Profile — Scent Haven</title>
   <link rel="stylesheet" href="/assets/css/core.css">
   <link rel="stylesheet" href="/assets/css/pages.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -22,84 +22,115 @@
 
   <div class="page-body">
     <div class="page-hero">
-      <span class="section-eyebrow">✦ Final Step</span>
-      <h1 class="section-title">Check<em>out</em></h1>
+      <span class="section-eyebrow">✦ Your Account</span>
+      <h1 class="section-title">My <em>Profile</em></h1>
     </div>
 
     <div class="container">
-      <!-- Main checkout view -->
-      <div class="checkout-layout" id="checkout-view">
-        <div>
-          <!-- Contact -->
-          <div class="checkout-form-section">
-            <h3 class="checkout-form-title">Contact Information</h3>
+      <div class="profile-layout">
+        <!-- Sidebar -->
+        <div class="profile-sidebar">
+          <div class="profile-avatar" id="profile-avatar">👤</div>
+          <div class="profile-name" id="profile-name">Loading...</div>
+          <div class="profile-email" id="profile-email"></div>
+          <div class="profile-nav">
+            <div class="profile-nav-item active" onclick="showSection('info')">👤 Profile Info</div>
+            <div class="profile-nav-item" onclick="showSection('orders')">📦 My Orders</div>
+            <div class="profile-nav-item" onclick="showSection('wishlist')">♥ Wishlist</div>
+            <div class="profile-nav-item" onclick="showSection('address')">📍 Addresses</div>
+            <div class="profile-nav-item" onclick="handleLogout()" style="color:var(--error);margin-top:1rem;">↗ Logout</div>
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div class="profile-content">
+          <!-- Profile Info Section -->
+          <div class="profile-section active" id="section-info">
+            <h2 class="profile-section-title">Profile Information</h2>
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">Full Name</label>
-                <input type="text" class="form-input" id="co-name" placeholder="John Doe">
+                <input type="text" class="form-input" id="edit-name">
               </div>
               <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" id="edit-email" disabled style="opacity:0.5;">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
                 <label class="form-label">Phone Number</label>
-                <input type="tel" class="form-input" id="co-phone" placeholder="+234...">
+                <input type="tel" class="form-input" id="edit-phone" placeholder="+234...">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Date of Birth</label>
+                <input type="date" class="form-input" id="edit-dob">
               </div>
             </div>
             <div class="form-group">
-              <label class="form-label">Email</label>
-              <input type="email" class="form-input" id="co-email" placeholder="your@email.com">
+              <label class="form-label">Bio</label>
+              <textarea class="form-textarea" id="edit-bio" placeholder="Tell us about your fragrance preferences..."></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+          </div>
+
+          <!-- Orders Section -->
+          <div class="profile-section" id="section-orders">
+            <h2 class="profile-section-title">My Orders</h2>
+            <div id="orders-list">
+              <div class="empty-state">
+                <div class="empty-state-icon">📦</div>
+                <div class="empty-state-title">No orders yet</div>
+                <div class="empty-state-text">Your order history will appear here</div>
+                <a href="/shop.html" class="btn btn-outline">Start Shopping</a>
+              </div>
             </div>
           </div>
 
-          <!-- Delivery -->
-          <div class="checkout-form-section">
-            <h3 class="checkout-form-title">Delivery Address</h3>
+          <!-- Wishlist Section -->
+          <div class="profile-section" id="section-wishlist">
+            <h2 class="profile-section-title">My Wishlist</h2>
+            <div id="wishlist-grid" class="featured-grid">
+              <!-- Populated by JS -->
+            </div>
+            <div id="wishlist-empty" style="display:none;">
+              <div class="empty-state">
+                <div class="empty-state-icon">♡</div>
+                <div class="empty-state-title">Your wishlist is empty</div>
+                <div class="empty-state-text">Save your favorite fragrances for later</div>
+                <a href="/shop.html" class="btn btn-outline">Browse Fragrances</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Address Section -->
+          <div class="profile-section" id="section-address">
+            <h2 class="profile-section-title">Delivery Address</h2>
             <div class="form-group">
               <label class="form-label">Street Address</label>
-              <input type="text" class="form-input" id="co-street" placeholder="123 Main Street, Lekki">
+              <input type="text" class="form-input" id="addr-street" placeholder="123 Main Street">
             </div>
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">City</label>
-                <input type="text" class="form-input" id="co-city" placeholder="Lagos">
+                <input type="text" class="form-input" id="addr-city" placeholder="Lagos">
               </div>
               <div class="form-group">
                 <label class="form-label">State</label>
-                <input type="text" class="form-input" id="co-state" placeholder="Lagos">
+                <input type="text" class="form-input" id="addr-state" placeholder="Lagos">
               </div>
             </div>
-            <div class="form-group">
-              <label class="form-label">Additional Notes</label>
-              <textarea class="form-textarea" id="co-notes" placeholder="Delivery instructions, landmarks, etc."></textarea>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Postal Code</label>
+                <input type="text" class="form-input" id="addr-zip" placeholder="100001">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Country</label>
+                <input type="text" class="form-input" id="addr-country" value="Nigeria">
+              </div>
             </div>
-          </div>
-        </div>
-
-        <!-- Summary sidebar -->
-        <div>
-          <div class="cart-summary">
-            <h3 class="cart-summary-title">Order Summary</h3>
-            <div id="checkout-items"></div>
-            <div id="checkout-totals"></div>
-            <div style="margin-top:1.5rem;display:flex;flex-direction:column;gap:0.8rem;">
-              <button class="btn btn-primary btn-block" onclick="placeOrder()">Place Order</button>
-              <button class="btn btn-success btn-block" onclick="whatsappOrder()">💬 Confirm via WhatsApp</button>
-            </div>
-            <div style="margin-top:0.8rem;text-align:center;">
-              <a href="/cart.html" style="font-size:0.72rem;color:var(--gold);">← Back to Cart</a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Confirmation view (hidden initially) -->
-      <div id="order-confirmation" style="display:none;">
-        <div class="empty-state" style="padding:5rem 2rem;">
-          <div class="empty-state-icon">🎉</div>
-          <div class="empty-state-title" style="font-size:2rem;">Order Placed!</div>
-          <div class="empty-state-text" style="max-width:400px;margin:0.5rem auto 0;">Thank you for your order. We'll confirm it shortly via WhatsApp.</div>
-          <div id="order-id" style="font-family:var(--font-display);font-size:1.2rem;color:var(--gold);margin:1rem 0;"></div>
-          <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem;">
-            <a href="/shop.html" class="btn btn-outline">Continue Shopping</a>
-            <a href="/profile.html" class="btn btn-primary">View Orders</a>
+            <button class="btn btn-primary" onclick="saveAddress()">Save Address</button>
           </div>
         </div>
       </div>
@@ -109,132 +140,127 @@
   <footer class="site-footer" id="site-footer"></footer>
 
   <script>
-    let cartData = [];
-    let orderTotal = 0;
+    let currentUser = null;
 
     document.addEventListener('DOMContentLoaded', async () => {
       await renderNavbar();
 
-      cartData = await Cart.getCartWithProducts();
-      if (!cartData.length) {
-        window.location.href = '/cart.html';
+      currentUser = await Auth.getUser();
+      if (!currentUser) {
+        window.location.href = '/login.html';
         return;
       }
 
-      // Pre-fill from user data
-      const user = await Auth.getUser();
-      if (user) {
-        document.getElementById('co-name').value = user.full_name || '';
-        document.getElementById('co-email').value = user.email || '';
-        document.getElementById('co-phone').value = user.phone || '';
-      }
+      // Populate profile
+      document.getElementById('profile-name').textContent = currentUser.full_name || currentUser.email;
+      document.getElementById('profile-email').textContent = currentUser.email;
+      document.getElementById('edit-name').value = currentUser.full_name || '';
+      document.getElementById('edit-email').value = currentUser.email || '';
+      document.getElementById('edit-phone').value = currentUser.phone || '';
+      document.getElementById('edit-bio').value = currentUser.bio || '';
 
-      // Pre-fill address
+      // Load address from localStorage
       const addr = JSON.parse(localStorage.getItem('sh_address') || '{}');
-      if (addr.street) document.getElementById('co-street').value = addr.street;
-      if (addr.city) document.getElementById('co-city').value = addr.city;
-      if (addr.state) document.getElementById('co-state').value = addr.state;
+      if (addr.street) document.getElementById('addr-street').value = addr.street;
+      if (addr.city) document.getElementById('addr-city').value = addr.city;
+      if (addr.state) document.getElementById('addr-state').value = addr.state;
+      if (addr.zip) document.getElementById('addr-zip').value = addr.zip;
+      if (addr.country) document.getElementById('addr-country').value = addr.country;
 
-      renderCheckoutSummary();
+      loadOrders();
+      loadWishlist();
     });
 
-    function renderCheckoutSummary() {
-      const itemsEl = document.getElementById('checkout-items');
-      const totalsEl = document.getElementById('checkout-totals');
-
-      let subtotal = 0;
-      itemsEl.innerHTML = cartData.map(item => {
-        const p = item.product;
-        const lineTotal = p.price * item.quantity;
-        subtotal += lineTotal;
-        return `
-          <div class="cart-summary-row" style="margin-bottom:0.8rem;">
-            <span style="flex:1;">${p.name} <span style="color:var(--muted-dim);">×${item.quantity}</span></span>
-            <span>${formatPrice(lineTotal)}</span>
-          </div>
-        `;
-      }).join('');
-
-      const delivery = subtotal > 100000 ? 0 : 3000;
-      orderTotal = subtotal + delivery;
-
-      totalsEl.innerHTML = `
-        <div style="border-top:1px solid rgba(201,168,76,0.1);padding-top:0.8rem;margin-top:0.8rem;">
-          <div class="cart-summary-row"><span>Subtotal</span><span>${formatPrice(subtotal)}</span></div>
-          <div class="cart-summary-row"><span>Delivery</span><span>${delivery === 0 ? '<span style="color:var(--success);">Free</span>' : formatPrice(delivery)}</span></div>
-        </div>
-        <div class="cart-summary-total"><span>Total</span><span>${formatPrice(orderTotal)}</span></div>
-      `;
+    function showSection(section) {
+      document.querySelectorAll('.profile-section').forEach(s => s.classList.remove('active'));
+      document.getElementById(`section-${section}`).classList.add('active');
+      document.querySelectorAll('.profile-nav-item').forEach(item => item.classList.remove('active'));
+      event.currentTarget.classList.add('active');
     }
 
-    async function placeOrder() {
-      const name = document.getElementById('co-name').value.trim();
-      const phone = document.getElementById('co-phone').value.trim();
-      const email = document.getElementById('co-email').value.trim();
-      const street = document.getElementById('co-street').value.trim();
-      const city = document.getElementById('co-city').value.trim();
+    async function saveProfile() {
+      const updates = {
+        full_name: document.getElementById('edit-name').value.trim(),
+        phone: document.getElementById('edit-phone').value.trim(),
+        bio: document.getElementById('edit-bio').value.trim(),
+        dob: document.getElementById('edit-dob').value
+      };
+      const { error } = await Auth.updateProfile(updates);
+      if (error) { showToast(error.message, 'error'); return; }
+      document.getElementById('profile-name').textContent = updates.full_name;
+      showToast('Profile updated!', 'success');
+    }
 
-      if (!name) { showToast('Please enter your name', 'error'); return; }
-      if (!phone) { showToast('Please enter your phone number', 'error'); return; }
-      if (!street) { showToast('Please enter your delivery address', 'error'); return; }
-      if (!city) { showToast('Please enter your city', 'error'); return; }
+    function saveAddress() {
+      const addr = {
+        street: document.getElementById('addr-street').value.trim(),
+        city: document.getElementById('addr-city').value.trim(),
+        state: document.getElementById('addr-state').value.trim(),
+        zip: document.getElementById('addr-zip').value.trim(),
+        country: document.getElementById('addr-country').value.trim()
+      };
+      localStorage.setItem('sh_address', JSON.stringify(addr));
+      showToast('Address saved!', 'success');
+    }
 
-      const user = await Auth.getUser();
+    async function loadOrders() {
+      const { data: orders } = await Orders.getUserOrders();
+      const container = document.getElementById('orders-list');
+      if (!orders || orders.length === 0) return;
 
-      const orderData = {
-        user_id: (user && user.id) || 'guest',
-        customer_name: name,
-        customer_phone: phone,
-        customer_email: email,
-        delivery_address: `${street}, ${city}, ${document.getElementById('co-state').value.trim()}`,
-        notes: document.getElementById('co-notes').value.trim(),
-        total: orderTotal,
-        items: cartData.map(item => ({
-          product_id: item.product.id,
-          name: item.product.name,
-          brand: item.product.brand,
-          price: item.product.price,
-          quantity: item.quantity
-        }))
+      const statusColors = {
+        pending: 'badge-warning', confirmed: 'badge-info',
+        shipped: 'badge-info', delivered: 'badge-success', cancelled: 'badge-error'
       };
 
-      const { data: order, error } = await Orders.create(orderData);
-      if (error) {
-        showToast('Failed to place order: ' + error.message, 'error');
+      container.innerHTML = orders.map(order => `
+        <div class="cart-item" style="flex-direction:column;align-items:stretch;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);">Order ${order.id}</div>
+              <div style="font-size:0.68rem;color:var(--muted);">${new Date(order.created_at).toLocaleDateString()}</div>
+            </div>
+            <div>
+              <span class="badge ${statusColors[order.status] || 'badge-outline'}">${order.status}</span>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:0.8rem;padding-top:0.8rem;border-top:1px solid rgba(201,168,76,0.08);">
+            <span style="font-size:0.76rem;color:var(--muted);">${(order.items && order.items.length) || 0} item(s)</span>
+            <span style="font-family:var(--font-display);font-size:1.1rem;color:var(--gold);">${formatPrice(order.total || 0)}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function loadWishlist() {
+      const wishlistItems = await Wishlist.getItems();
+      const grid = document.getElementById('wishlist-grid');
+      const empty = document.getElementById('wishlist-empty');
+
+      if (!wishlistItems || wishlistItems.length === 0) {
+        grid.style.display = 'none';
+        empty.style.display = 'block';
         return;
       }
 
-      // Clear cart
-      await Cart.clear();
-      updateCartCount();
+      const products = Products._getDemoProducts();
+      const wishlistProducts = wishlistItems
+        .map(w => products.find(p => p.id == w.product_id))
+        .filter(Boolean);
 
-      // Show confirmation
-      document.getElementById('checkout-view').style.display = 'none';
-      document.getElementById('order-confirmation').style.display = 'block';
-      document.getElementById('order-id').textContent = `Order #${order.id}`;
+      if (wishlistProducts.length === 0) {
+        grid.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+      }
+
+      grid.innerHTML = wishlistProducts.map(p => productCardHTML(p)).join('');
     }
 
-    function whatsappOrder() {
-      const name = document.getElementById('co-name').value.trim() || 'Customer';
-      const phone = document.getElementById('co-phone').value.trim();
-      const address = `${document.getElementById('co-street').value.trim()}, ${document.getElementById('co-city').value.trim()}`;
-
-      let msg = '🌹 *SCENT HAVEN ORDER* 🌹\n\n';
-      msg += `👤 Name: ${name}\n`;
-      if (phone) msg += `📞 Phone: ${phone}\n`;
-      if (address.length > 2) msg += `📍 Address: ${address}\n`;
-      msg += '\n';
-
-      let total = 0;
-      cartData.forEach(item => {
-        const p = item.product;
-        const lineTotal = p.price * item.quantity;
-        total += lineTotal;
-        msg += `• *${p.name}* (${p.brand})\n  Qty: ${item.quantity} | ₦${lineTotal.toLocaleString()}\n\n`;
-      });
-
-      msg += `━━━━━━━━━━━━\n💰 *TOTAL: ₦${total.toLocaleString()}*\n\nPlease confirm my order. Thank you! 🙏`;
-      window.open('https://wa.me/2349033429640?text=' + encodeURIComponent(msg), '_blank');
+    async function handleLogout() {
+      await Auth.logout();
+      showToast('Logged out', 'info');
+      setTimeout(() => { window.location.href = '/index.html'; }, 500);
     }
   </script>
 </body>

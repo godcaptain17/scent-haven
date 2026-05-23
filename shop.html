@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <title>Login — Scent Haven</title>
+  <title>Shop — Scent Haven</title>
   <link rel="stylesheet" href="/assets/css/core.css">
   <link rel="stylesheet" href="/assets/css/pages.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -13,133 +13,141 @@
   <script src="/assets/js/ui.js"></script>
 </head>
 <body>
+  <div class="loading-overlay" id="loading-screen">
+    <div class="spinner" style="width:36px;height:36px;border-width:2.5px;"></div>
+    <div class="loading-logo"><img src="https://vudxovvqpjdhlemugtqh.supabase.co/storage/v1/object/public/assets/logo.png" alt="Scent Haven" style="height:60px;width:auto;"></div>
+  </div>
   <canvas id="particles-canvas"></canvas>
+  <nav class="navbar" id="navbar"></nav>
 
-  <div class="auth-page">
-    <div class="auth-card">
-      <div class="auth-logo"><a href="/index.html"><img src="https://vudxovvqpjdhlemugtqh.supabase.co/storage/v1/object/public/assets/logo.png" alt="Scent Haven" style="height:56px;width:auto;display:block;margin:0 auto 0.5rem;"></a></div>
-      <h1 class="auth-title">Welcome Back</h1>
-      <p class="auth-subtitle">Sign in to your account</p>
+  <div class="page-body">
+    <div class="page-hero">
+      <span class="section-eyebrow">✦ Our Collection</span>
+      <h1 class="section-title">The <em>Shop</em></h1>
+      <p class="body-text">Explore our curated selection of luxury fragrances</p>
+    </div>
 
-      <!-- Login Form -->
-      <div id="login-form">
-        <div class="form-group">
-          <label class="form-label">Email Address</label>
-          <input type="email" class="form-input" id="login-email" placeholder="your@email.com" autocomplete="email">
-          <div class="form-error" id="email-error"></div>
+    <div class="container">
+      <!-- Controls -->
+      <div class="shop-controls">
+        <div class="shop-search">
+          <input type="text" id="search-input" placeholder="Search perfumes, brands, notes...">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </div>
-        <div class="form-group">
-          <label class="form-label">Password</label>
-          <input type="password" class="form-input" id="login-password" placeholder="Enter your password" autocomplete="current-password">
-          <div class="form-error" id="password-error"></div>
+        <div class="shop-filters" id="category-filters">
+          <!-- Built by JS -->
         </div>
-        <div style="text-align:right;margin-bottom:1.2rem;">
-          <a href="#" onclick="showForgotPassword()" style="font-size:0.72rem;color:var(--gold);">Forgot password?</a>
-        </div>
-        <button class="btn btn-primary btn-block" id="login-btn" onclick="handleLogin()">Sign In</button>
-      </div>
-
-      <!-- Forgot Password Form -->
-      <div id="forgot-form" style="display:none;">
-        <div class="form-group">
-          <label class="form-label">Email Address</label>
-          <input type="email" class="form-input" id="forgot-email" placeholder="your@email.com">
-        </div>
-        <button class="btn btn-primary btn-block" onclick="handleForgotPassword()">Send Reset Link</button>
-        <div style="text-align:center;margin-top:1rem;">
-          <a href="#" onclick="showLoginForm()" style="font-size:0.72rem;color:var(--gold);">← Back to login</a>
+        <div class="shop-sort">
+          <select id="sort-select">
+            <option value="">Sort By</option>
+            <option value="price_asc">Price: Low → High</option>
+            <option value="price_desc">Price: High → Low</option>
+            <option value="name">Name A–Z</option>
+            <option value="rating">Top Rated</option>
+          </select>
         </div>
       </div>
 
-      <div class="auth-footer">
-        Don't have an account? <a href="/register.html">Create one</a>
+      <div class="products-count" id="products-count"></div>
+
+      <!-- Products Grid -->
+      <div class="products-grid" id="products-grid">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="no-results" style="display:none;">
+        <div class="empty-state-icon">🔍</div>
+        <div class="empty-state-title">No fragrances found</div>
+        <div class="empty-state-text">Try adjusting your search or filters</div>
+        <button class="btn btn-outline" onclick="clearFilters()">Clear Filters</button>
       </div>
     </div>
   </div>
 
+  <footer class="site-footer" id="site-footer"></footer>
+
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Enter key support
-      document.getElementById('login-password').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleLogin();
+    let currentCategory = 'All';
+    let currentSearch = '';
+    let currentSort = '';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await renderNavbar('shop');
+
+      // Check URL params for category
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('category')) currentCategory = params.get('category');
+
+      // Build category filters
+      const filtersContainer = document.getElementById('category-filters');
+      filtersContainer.innerHTML = CATEGORIES.map(cat =>
+        `<button class="filter-btn ${cat === currentCategory ? 'active' : ''}" onclick="setCategory('${cat}')">${cat}</button>`
+      ).join('');
+
+      // Search input
+      let searchTimeout;
+      document.getElementById('search-input').addEventListener('input', (e) => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+          currentSearch = e.target.value.trim();
+          loadProducts();
+        }, 300);
       });
+
+      // Sort select
+      document.getElementById('sort-select').addEventListener('change', (e) => {
+        currentSort = e.target.value;
+        loadProducts();
+      });
+
+      await loadProducts();
     });
 
-    function showForgotPassword() {
-      document.getElementById('login-form').style.display = 'none';
-      document.getElementById('forgot-form').style.display = 'block';
+    function setCategory(cat) {
+      currentCategory = cat;
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent === cat);
+      });
+      loadProducts();
     }
 
-    function showLoginForm() {
-      document.getElementById('login-form').style.display = 'block';
-      document.getElementById('forgot-form').style.display = 'none';
+    function clearFilters() {
+      currentCategory = 'All';
+      currentSearch = '';
+      currentSort = '';
+      document.getElementById('search-input').value = '';
+      document.getElementById('sort-select').value = '';
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent === 'All');
+      });
+      loadProducts();
     }
 
-    async function handleLogin() {
-      const email = document.getElementById('login-email').value.trim();
-      const password = document.getElementById('login-password').value;
+    async function loadProducts() {
+      const grid = document.getElementById('products-grid');
+      const noResults = document.getElementById('no-results');
+      const countEl = document.getElementById('products-count');
 
-      // Validate
-      let valid = true;
-      if (!email) {
-        showFieldError('email-error', 'Email is required');
-        valid = false;
-      }
-      if (!password) {
-        showFieldError('password-error', 'Password is required');
-        valid = false;
-      }
-      if (!valid) return;
+      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;"><div class="spinner" style="margin:0 auto;"></div></div>';
 
-      const btn = document.getElementById('login-btn');
-      btn.textContent = 'Signing in...';
-      btn.disabled = true;
+      const { data: products } = await Products.getAll({
+        category: currentCategory,
+        search: currentSearch,
+        sort: currentSort
+      });
 
-      const { data, error } = await Auth.login(email, password);
-      if (error) {
-        showToast(error.message || 'Invalid credentials', 'error');
-        btn.textContent = 'Sign In';
-        btn.disabled = false;
+      if (!products || products.length === 0) {
+        grid.innerHTML = '';
+        noResults.style.display = 'block';
+        countEl.textContent = '0 fragrances';
         return;
       }
 
-      showToast('Welcome back!', 'success');
-
-      // Check if admin and redirect accordingly
-      const isAdmin = await Auth.isAdmin();
-      setTimeout(() => {
-        if (isAdmin) {
-          window.location.href = '/admin/dashboard.html';
-        } else {
-          window.location.href = '/index.html';
-        }
-      }, 500);
-    }
-
-    async function handleForgotPassword() {
-      const email = document.getElementById('forgot-email').value.trim();
-      if (!email) {
-        showToast('Please enter your email', 'error');
-        return;
-      }
-      const { error } = await Auth.resetPassword(email);
-      if (error) {
-        showToast(error.message, 'error');
-        return;
-      }
-      showToast('Password reset link sent! Check your email.', 'success');
-      showLoginForm();
-    }
-
-    function showFieldError(id, msg) {
-      const el = document.getElementById(id);
-      el.textContent = msg;
-      el.style.display = 'block';
-      el.parentElement.classList.add('error');
-      setTimeout(() => {
-        el.style.display = 'none';
-        el.parentElement.classList.remove('error');
-      }, 3000);
+      noResults.style.display = 'none';
+      countEl.textContent = `${products.length} fragrance${products.length !== 1 ? 's' : ''}`;
+      grid.innerHTML = products.map(p => productCardHTML(p)).join('');
+      initScrollReveal();
     }
   </script>
 </body>
