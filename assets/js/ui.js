@@ -40,7 +40,7 @@ async function renderNavbar(activePage = '') {
   
   nav.innerHTML = `
     <a href="/index.html" class="nav-logo">
-      <span class="nav-logo-text"><img src="https://vudxovvqpjdhlemugtqh.supabase.co/storage/v1/object/public/assets/logo.png" alt="Scent Haven" style="height:56px;width:auto;display:block;"> <span style="display:none">Scent Haven</span></span>
+      <span class="nav-logo-text">Scent <em>Haven</em></span>
     </a>
     <ul class="nav-links">
       <li><a href="/index.html" class="nav-link ${activePage === 'home' ? 'active' : ''}">Home</a></li>
