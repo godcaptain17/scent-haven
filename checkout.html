@@ -215,6 +215,8 @@ whatsappOrder();
 document.getElementById('checkout-view').style.display = 'none';
 document.getElementById('order-confirmation').style.display = 'block';
 document.getElementById('order-id').textContent = `Order #${order.id}`;
+    }
+    
     function whatsappOrder() {
       const name = document.getElementById('co-name').value.trim() || 'Customer';
       const phone = document.getElementById('co-phone').value.trim();
