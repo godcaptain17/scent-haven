@@ -541,22 +541,16 @@ ul, ol { list-style: none; }
 }
 @media (max-width: 480px) {
   .nav-cart-btn {
-    background: transparent;
-    padding: 0.3rem;
-    color: var(--gold);
+    background: transparent !important;
+    color: var(--gold) !important;
+    font-size: 1.5rem !important;
+    padding: 0.3rem !important;
   }
-  .nav-cart-btn span { display: none; }
-.nav-cart-btn div { display: block !important; font-size: 1.3rem; }
-  .nav-cart-count {
-    display: flex !important;
-    background: var(--rose);
-    color: #fff;
-    position: absolute;
-    top: -4px;
-    right: -4px;
-    width: 16px;
-    height: 16px;
-    font-size: 0.5rem;
+  .nav-cart-btn * { display: none !important; }
+  .nav-cart-btn::before {
+    content: '🛒';
+    display: block !important;
+    font-size: 1.5rem;
+    line-height: 1;
   }
-  .nav-actions { position: relative; }
 }
