@@ -896,7 +896,8 @@
     display: none;
   }
   .product-card-price {
-    font-size: 0.8rem;
+    font-size: 1rem;
+    font-weight: 700;
   }
   .btn-sm {
     font-size: 0.65rem;
