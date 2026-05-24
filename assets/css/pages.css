@@ -880,3 +880,26 @@
   padding-bottom: 0.5rem;
   border-bottom: 1px solid rgba(201,168,76,0.1);
 }
+
+@media (max-width: 768px) {
+  .featured-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.8rem !important;
+  }
+  .product-card-name {
+    font-size: 0.75rem;
+  }
+  .product-card-brand {
+    font-size: 0.65rem;
+  }
+  .product-card-desc {
+    display: none;
+  }
+  .product-card-price {
+    font-size: 0.8rem;
+  }
+  .btn-sm {
+    font-size: 0.65rem;
+    padding: 0.3rem 0.5rem;
+  }
+}
