@@ -79,8 +79,8 @@
       <div class="container">
         <div class="fade-up">
           <span class="section-eyebrow">✦ Curated Selection</span>
-          <h2 class="section-title">Featured <em>Fragrances</em></h2>
-          <p class="body-text">Hand-picked luxury scents for the distinguished collector.</p>
+          <h2 class="section-title">Our <em>Shop</em></h2>
+          <p class="body-text">Browse our full collection of luxury fragrances.</p>
         </div>
         <div class="featured-grid" id="featured-grid">
           <!-- Populated by JS -->
@@ -169,11 +169,11 @@
       await renderNavbar('home');
 
       // Load featured products
-      const { data: featured } = await Products.getAll({ featured: true });
-      const grid = document.getElementById('featured-grid');
-      if (grid && featured) {
-        grid.innerHTML = featured.slice(0, 8).map(p => productCardHTML(p)).join('');
-      }
+     const { data: featured } = await Products.getAll({});
+const grid = document.getElementById('featured-grid');
+if (grid && featured) {
+  grid.innerHTML = featured.map(p => productCardHTML(p)).join('');
+}
 
       initScrollReveal();
     });
