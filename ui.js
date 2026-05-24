@@ -51,7 +51,7 @@ async function renderNavbar(activePage = '') {
     <div class="nav-actions">
       ${userBtn}
       <button class="nav-cart-btn" onclick="window.location.href='/cart.html'">
-        <span class="nav-cart-label">CART</span>
+        <span class="nav-cart-label">🛒</span>
         <span class="nav-cart-count" id="cart-count">${cartCount}</span>
       </button>
       <div class="nav-hamburger" id="nav-hamburger" onclick="toggleMobileNav()">
