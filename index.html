@@ -136,7 +136,7 @@
         <p class="body-text" style="max-width:480px;margin:0 auto 2.5rem;">Over 200 luxury fragrances waiting to be discovered. Create your account and start shopping today.</p>
         <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
           <a href="/shop.html" class="btn btn-primary btn-lg">Go Shopping</a>
-          <a href="/register.html" class="btn btn-outline btn-lg">Create Account</a>
+          <a href="/register.html" class="btn btn-outline btn-lg" id="cta-register-btn">Create Account</a>
         </div>
       </div>
     </section>
@@ -187,6 +187,14 @@
     document.addEventListener('DOMContentLoaded', async () => {
       await renderNavbar('home');
       initScrollReveal();
+
+      try {
+        var user = await Auth.getUser();
+        if (user) {
+          var btn = document.getElementById('cta-register-btn');
+          if (btn) btn.style.display = 'none';
+        }
+      } catch(e) {}
     });
   </script>
 </body>
