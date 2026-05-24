@@ -14,44 +14,34 @@
   <script src="/assets/js/ui.js"></script>
 </head>
 <body>
-  <!-- Loading Screen -->
   <div class="loading-overlay" id="loading-screen">
     <div class="spinner" style="width:36px;height:36px;border-width:2.5px;"></div>
     <div class="loading-logo"><img src="https://vudxovvqpjdhlemugtqh.supabase.co/storage/v1/object/public/assets/logo.png" alt="Scent Haven" style="height:60px;width:auto;"></div>
   </div>
 
-  <!-- Particles -->
   <canvas id="particles-canvas"></canvas>
-
-  <!-- Navbar -->
   <nav class="navbar" id="navbar"></nav>
 
   <div class="page-body">
-    <!-- ═══ HERO ═══ -->
     <section class="hero" id="hero">
       <div class="hero-bg"></div>
       <div class="hero-orb" style="width:280px;height:280px;top:15%;left:8%;background:radial-gradient(circle,rgba(201,168,76,0.08),transparent);--dur:6s;"></div>
       <div class="hero-orb" style="width:200px;height:200px;bottom:20%;right:12%;background:radial-gradient(circle,rgba(139,34,82,0.12),transparent);--dur:4.5s;"></div>
-      <div class="hero-orb" style="width:140px;height:140px;top:60%;left:55%;background:radial-gradient(circle,rgba(232,201,122,0.06),transparent);--dur:5.5s;"></div>
       <div class="hero-content">
-        <div class="hero-eyebrow">✦ Luxury Fragrance House ✦</div>
-        <h1 class="hero-title">
-          Scent
-          <em>Haven</em>
-        </h1>
-        <p class="hero-subtitle">Where every fragrance tells a story</p>
+        <div class="hero-eyebrow" style="color:#E8C97A;opacity:1;">✦ Nigeria's Finest Fragrance Destination ✦</div>
+        <h1 class="hero-title">Scent<em>Haven</em></h1>
+        <p class="hero-subtitle" style="color:#E8D4BC;opacity:1;font-size:0.95rem;">Authentic luxury perfumes, delivered to your door</p>
         <div class="hero-actions">
-          <a href="/shop.html" class="btn btn-primary btn-lg">Explore Collection</a>
-          <a href="#featured" class="btn btn-outline btn-lg">Featured Scents</a>
+          <a href="/shop.html" class="btn btn-primary btn-lg">Go Shopping</a>
+          <a href="#about" class="btn btn-outline btn-lg">Our Story</a>
         </div>
       </div>
       <div class="hero-scroll">
-        <span>Scroll</span>
+        <span style="color:#D0BCA8;">Scroll</span>
         <div class="hero-scroll-line"></div>
       </div>
     </section>
 
-    <!-- ═══ MARQUEE ═══ -->
     <div class="marquee">
       <div class="marquee-track">
         <span class="marquee-item">Tom Ford</span><span class="marquee-item marquee-dot">✦</span>
@@ -62,7 +52,6 @@
         <span class="marquee-item">YSL</span><span class="marquee-item marquee-dot">✦</span>
         <span class="marquee-item">Versace</span><span class="marquee-item marquee-dot">✦</span>
         <span class="marquee-item">Guerlain</span><span class="marquee-item marquee-dot">✦</span>
-        <!-- Duplicate for seamless loop -->
         <span class="marquee-item">Tom Ford</span><span class="marquee-item marquee-dot">✦</span>
         <span class="marquee-item">Creed</span><span class="marquee-item marquee-dot">✦</span>
         <span class="marquee-item">Maison Francis Kurkdjian</span><span class="marquee-item marquee-dot">✦</span>
@@ -74,24 +63,44 @@
       </div>
     </div>
 
-    <!-- ═══ FEATURED ═══ -->
-    <section class="section-featured" id="featured">
+    <section style="padding:3rem 0;background:rgba(20,13,16,0.9);border-top:1px solid rgba(201,168,76,0.08);border-bottom:1px solid rgba(201,168,76,0.08);">
       <div class="container">
-        <div class="fade-up">
-          <span class="section-eyebrow">✦ Curated Selection</span>
-          <h2 class="section-title">Featured <em>Fragrances</em></h2>
-          <p class="body-text">Hand-picked luxury scents for the distinguished collector.</p>
-        </div>
-        <div class="featured-grid" id="featured-grid">
-          <!-- Populated by JS -->
-        </div>
-        <div style="text-align:center;margin-top:2.5rem;" class="fade-up">
-          <a href="/shop.html" class="btn btn-outline">View Full Collection</a>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;text-align:center;">
+          <div>
+            <div style="font-size:1.8rem;margin-bottom:0.5rem;">✅</div>
+            <div style="font-size:0.72rem;letter-spacing:0.12em;color:#FFF8F0;text-transform:uppercase;font-weight:600;">100% Authentic</div>
+            <div style="font-size:0.7rem;color:#C8B8A8;margin-top:0.3rem;">Genuine products only</div>
+          </div>
+          <div>
+            <div style="font-size:1.8rem;margin-bottom:0.5rem;">🚚</div>
+            <div style="font-size:0.72rem;letter-spacing:0.12em;color:#FFF8F0;text-transform:uppercase;font-weight:600;">Fast Delivery</div>
+            <div style="font-size:0.7rem;color:#C8B8A8;margin-top:0.3rem;">Nationwide shipping</div>
+          </div>
+          <div>
+            <div style="font-size:1.8rem;margin-bottom:0.5rem;">💬</div>
+            <div style="font-size:0.72rem;letter-spacing:0.12em;color:#FFF8F0;text-transform:uppercase;font-weight:600;">WhatsApp Support</div>
+            <div style="font-size:0.7rem;color:#C8B8A8;margin-top:0.3rem;">We reply instantly</div>
+          </div>
+          <div>
+            <div style="font-size:1.8rem;margin-bottom:0.5rem;">🔒</div>
+            <div style="font-size:0.72rem;letter-spacing:0.12em;color:#FFF8F0;text-transform:uppercase;font-weight:600;">Secure Checkout</div>
+            <div style="font-size:0.7rem;color:#C8B8A8;margin-top:0.3rem;">Safe & easy ordering</div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- ═══ ABOUT ═══ -->
+    <section class="section-featured" id="featured">
+      <div class="container">
+        <div class="fade-up" style="text-align:center;">
+          <span class="section-eyebrow">✦ Curated Selection</span>
+          <h2 class="section-title">Featured <em>Fragrances</em></h2>
+          <p class="body-text" style="max-width:520px;margin:0 auto 2.5rem;">Explore our hand-picked selection of the world's finest fragrances — from Tom Ford to Creed, each bottle a masterpiece.</p>
+          <a href="/shop.html" class="btn btn-primary btn-lg">Go Shopping</a>
+        </div>
+      </div>
+    </section>
+
     <section class="section-about" id="about">
       <div class="container">
         <div class="about-grid">
@@ -120,7 +129,18 @@
       </div>
     </section>
 
-    <!-- ═══ CONTACT ═══ -->
+    <section style="padding:5rem 0;background:linear-gradient(135deg,rgba(139,34,82,0.3),rgba(201,168,76,0.15));border-top:1px solid rgba(201,168,76,0.12);border-bottom:1px solid rgba(201,168,76,0.12);">
+      <div class="container" style="text-align:center;">
+        <span class="section-eyebrow">✦ Start Your Journey</span>
+        <h2 class="section-title" style="margin-bottom:1rem;">Find Your <em>Signature Scent</em></h2>
+        <p class="body-text" style="max-width:480px;margin:0 auto 2.5rem;">Over 200 luxury fragrances waiting to be discovered. Create your account and start shopping today.</p>
+        <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+          <a href="/shop.html" class="btn btn-primary btn-lg">Go Shopping</a>
+          <a href="/register.html" class="btn btn-outline btn-lg">Create Account</a>
+        </div>
+      </div>
+    </section>
+
     <section class="section-contact" id="contact">
       <div class="container">
         <div class="fade-up text-center">
@@ -161,19 +181,11 @@
     </section>
   </div>
 
-  <!-- Footer -->
   <footer class="site-footer" id="site-footer"></footer>
 
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       await renderNavbar('home');
-
-      // Load featured products
-     const { data: featured } = await Products.getAll({ featured: true });
-const grid = document.getElementById('featured-grid');
-if (grid && featured) {
-  grid.innerHTML = featured.slice(0, 8).map(p => productCardHTML(p)).join('');
-
       initScrollReveal();
     });
   </script>
