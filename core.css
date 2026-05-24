@@ -294,6 +294,10 @@ ul, ol { list-style: none; }
   gap: 0.5rem;
   transition: transform var(--transition-fast), box-shadow var(--transition-base);
 }
+.nav-cart-btn::before {
+  content: "🛒";
+  font-size: 1rem;
+}
 .nav-cart-btn:hover { transform: scale(1.04); box-shadow: var(--shadow-gold); }
 .nav-cart-count {
   background: var(--deep);
