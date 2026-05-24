@@ -40,7 +40,7 @@ async function renderNavbar(activePage = '') {
   
   nav.innerHTML = `
     <a href="/index.html" class="nav-logo">
-      <span class="nav-logo-text"><img src="https://vudxovvqpjdhlemugtqh.supabase.co/storage/v1/object/public/assets/logo.png" alt="Scent Haven" style="height:55px;width:auto;vertical-align:middle;"> <span style="display:none">Scent Haven</span></span>
+      <span class="nav-logo-text"><img src="https://vudxovvqpjdhlemugtqh.supabase.co/storage/v1/object/public/assets/logo.png" alt="Scent Haven" style="height:65px;width:auto;vertical-align:middle;margin-right:8px;"> <span style="display:none">Scent Haven</span></span>
     </a>
     <ul class="nav-links">
       <li><a href="/index.html" class="nav-link ${activePage === 'home' ? 'active' : ''}">Home</a></li>
@@ -50,10 +50,10 @@ async function renderNavbar(activePage = '') {
     </ul>
     <div class="nav-actions">
       ${userBtn}
-    <button class="nav-cart-btn" onclick="window.location.href='/cart.html'">
-  <div style="font-size:1.3rem;line-height:1;">🛒</div>
-  <span class="nav-cart-count" id="cart-count">${cartCount}</span>
-</button>
+      <button class="nav-cart-btn" onclick="window.location.href='/cart.html'">
+        <span class="nav-cart-label">CART</span>
+        <span class="nav-cart-count" id="cart-count">${cartCount}</span>
+      </button>
       <div class="nav-hamburger" id="nav-hamburger" onclick="toggleMobileNav()">
         <span></span><span></span><span></span>
       </div>
