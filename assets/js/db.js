@@ -424,7 +424,7 @@ const Orders = {
       return { data: orders, error: null };
     }
     const { data, error } = await supabaseClient.from('orders')
-      .select('*, order_items(*, products(*)), profiles(full_name, email)')
+      .select('*')
       .order('created_at', { ascending: false });
     return { data, error };
   },
