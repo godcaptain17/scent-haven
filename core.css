@@ -540,5 +540,5 @@ ul, ol { list-style: none; }
   .page-hero { padding: calc(var(--nav-height) + 2rem) 0 2rem; }
 }
 @media (max-width: 480px) {
-  .nav-cart-btn .nav-cart-label { display: none; }
+ 
 }
