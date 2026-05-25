@@ -10,7 +10,13 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/assets/js/supabase.js"></script>
   <script src="/assets/js/db.js"></script>
-  <script src="/assets/js/ui.js?v=99"></script>
+  <script src="/assets/js/ui.js"></script>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#C9A84C">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Scent Haven">
+  <link rel="apple-touch-icon" href="https://vudxovvqpjdhlemugtqh.supabase.co/storage/v1/object/public/assets/logo.png">
 </head>
 <body>
   <div class="loading-overlay" id="loading-screen">
@@ -261,6 +267,11 @@
       await Auth.logout();
       showToast('Logged out', 'info');
       setTimeout(() => { window.location.href = '/index.html'; }, 500);
+    }
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js');
     }
   </script>
 </body>

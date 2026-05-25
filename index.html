@@ -11,37 +11,53 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/assets/js/supabase.js"></script>
   <script src="/assets/js/db.js"></script>
-  <script src="/assets/js/ui.js?v=99"></script>
+  <script src="/assets/js/ui.js?v=1779619165"></script>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#C9A84C">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Scent Haven">
+  <link rel="apple-touch-icon" href="https://vudxovvqpjdhlemugtqh.supabase.co/storage/v1/object/public/assets/logo.png">
 </head>
 <body>
+  <!-- Loading Screen -->
   <div class="loading-overlay" id="loading-screen">
     <div class="spinner" style="width:36px;height:36px;border-width:2.5px;"></div>
     <div class="loading-logo"><img src="https://vudxovvqpjdhlemugtqh.supabase.co/storage/v1/object/public/assets/logo.png" alt="Scent Haven" style="height:60px;width:auto;"></div>
   </div>
 
+  <!-- Particles -->
   <canvas id="particles-canvas"></canvas>
+
+  <!-- Navbar -->
   <nav class="navbar" id="navbar"></nav>
 
   <div class="page-body">
+    <!-- ═══ HERO ═══ -->
     <section class="hero" id="hero">
       <div class="hero-bg"></div>
       <div class="hero-orb" style="width:280px;height:280px;top:15%;left:8%;background:radial-gradient(circle,rgba(201,168,76,0.08),transparent);--dur:6s;"></div>
       <div class="hero-orb" style="width:200px;height:200px;bottom:20%;right:12%;background:radial-gradient(circle,rgba(139,34,82,0.12),transparent);--dur:4.5s;"></div>
+      <div class="hero-orb" style="width:140px;height:140px;top:60%;left:55%;background:radial-gradient(circle,rgba(232,201,122,0.06),transparent);--dur:5.5s;"></div>
       <div class="hero-content">
-        <div class="hero-eyebrow" style="color:#E8C97A;opacity:1;">✦ Luxury Fragrance House ✦</div>
-        <h1 class="hero-title">Scent<em>Haven</em></h1>
-        <p class="hero-subtitle" style="color:#E8D4BC;opacity:1;font-size:0.95rem;">Where every fragrance tells a story</p>
+        <div class="hero-eyebrow">✦ Nigeria's Finest Fragrance Destination ✦</div>
+        <h1 class="hero-title">
+          Scent
+          <em>Haven</em>
+        </h1>
+        <p class="hero-subtitle">Authentic luxury perfumes, delivered to your door</p>
         <div class="hero-actions">
-          <a href="/shop.html" class="btn btn-primary btn-lg">Go Shopping</a>
-          <a href="#about" class="btn btn-outline btn-lg">Our Story</a>
+          <a href="/shop.html" class="btn btn-primary btn-lg">Explore Collection</a>
+          <a href="#featured" class="btn btn-outline btn-lg">Featured Scents</a>
         </div>
       </div>
       <div class="hero-scroll">
-        <span style="color:#D0BCA8;">Scroll</span>
+        <span>Scroll</span>
         <div class="hero-scroll-line"></div>
       </div>
     </section>
 
+    <!-- ═══ MARQUEE ═══ -->
     <div class="marquee">
       <div class="marquee-track">
         <span class="marquee-item">Tom Ford</span><span class="marquee-item marquee-dot">✦</span>
@@ -52,6 +68,7 @@
         <span class="marquee-item">YSL</span><span class="marquee-item marquee-dot">✦</span>
         <span class="marquee-item">Versace</span><span class="marquee-item marquee-dot">✦</span>
         <span class="marquee-item">Guerlain</span><span class="marquee-item marquee-dot">✦</span>
+        <!-- Duplicate for seamless loop -->
         <span class="marquee-item">Tom Ford</span><span class="marquee-item marquee-dot">✦</span>
         <span class="marquee-item">Creed</span><span class="marquee-item marquee-dot">✦</span>
         <span class="marquee-item">Maison Francis Kurkdjian</span><span class="marquee-item marquee-dot">✦</span>
@@ -63,6 +80,7 @@
       </div>
     </div>
 
+    <!-- ═══ TRUST BAR ═══ -->
     <section style="padding:3rem 0;background:rgba(20,13,16,0.9);border-top:1px solid rgba(201,168,76,0.08);border-bottom:1px solid rgba(201,168,76,0.08);">
       <div class="container">
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;text-align:center;">
@@ -90,17 +108,21 @@
       </div>
     </section>
 
+    <!-- ═══ FEATURED ═══ -->
     <section class="section-featured" id="featured">
       <div class="container">
-        <div class="fade-up" style="text-align:center;">
+        <div class="fade-up">
           <span class="section-eyebrow">✦ Curated Selection</span>
           <h2 class="section-title">Featured <em>Fragrances</em></h2>
-          <p class="body-text" style="max-width:520px;margin:0 auto 2.5rem;">Explore our hand-picked selection of the world's finest fragrances — from Tom Ford to Creed, each bottle a masterpiece.</p>
+          <p class="body-text" style="max-width:520px;">Explore our hand-picked selection of the world's finest fragrances — from Tom Ford to Creed, each bottle a masterpiece.</p>
+        </div>
+        <div style="text-align:center;margin-top:3rem;" class="fade-up">
           <a href="/shop.html" class="btn btn-primary btn-lg">Go Shopping</a>
         </div>
       </div>
     </section>
 
+    <!-- ═══ ABOUT ═══ -->
     <section class="section-about" id="about">
       <div class="container">
         <div class="about-grid">
@@ -129,18 +151,20 @@
       </div>
     </section>
 
+    <!-- ═══ CTA BANNER ═══ -->
     <section style="padding:5rem 0;background:linear-gradient(135deg,rgba(139,34,82,0.3),rgba(201,168,76,0.15));border-top:1px solid rgba(201,168,76,0.12);border-bottom:1px solid rgba(201,168,76,0.12);">
       <div class="container" style="text-align:center;">
         <span class="section-eyebrow">✦ Start Your Journey</span>
         <h2 class="section-title" style="margin-bottom:1rem;">Find Your <em>Signature Scent</em></h2>
         <p class="body-text" style="max-width:480px;margin:0 auto 2.5rem;">Over 200 luxury fragrances waiting to be discovered. Create your account and start shopping today.</p>
         <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
-          <a href="/shop.html" class="btn btn-primary btn-lg">Go Shopping</a>
-          <a href="/register.html" class="btn btn-outline btn-lg" id="cta-register-btn">Create Account</a>
+          <a href="/shop.html" class="btn btn-primary btn-lg">Shop Now</a>
+          <a href="/register.html" class="btn btn-outline btn-lg">Create Account</a>
         </div>
       </div>
     </section>
 
+    <!-- ═══ CONTACT ═══ -->
     <section class="section-contact" id="contact">
       <div class="container">
         <div class="fade-up text-center">
@@ -185,21 +209,25 @@
     </section>
   </div>
 
+  <!-- Footer -->
   <footer class="site-footer" id="site-footer"></footer>
 
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       await renderNavbar('home');
-      initScrollReveal();
 
-      try {
-        var user = await Auth.getUser();
-        if (user) {
-          var btn = document.getElementById('cta-register-btn');
-          if (btn) btn.style.display = 'none';
-        }
-      } catch(e) {}
+      // Load featured products
+      const { data: featured } = await Products.getAll({ featured: true });
+      // Products hidden on homepage - users go to shop page
+      // const grid = document.getElementById('featured-grid');
+
+      initScrollReveal();
     });
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js');
+    }
   </script>
 </body>
 </html>
